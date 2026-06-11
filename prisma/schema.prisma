@@ -1,0 +1,570 @@
+// Gigamail — schéma de données (couvre tous les domaines §10).
+// Dev : SQLite (zéro config). Prod : passez `provider = "postgresql"` + DATABASE_URL Postgres.
+// Les champs "enum-like" sont des String documentés (SQLite n'a pas d'enum natif).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// IAM — organisations, workspaces, utilisateurs, sessions, clés API
+// ============================================================================
+
+model Organization {
+  id               String      @id @default(cuid())
+  name             String
+  slug             String      @unique
+  whiteLabelDomain String? // app.client.com (white-label agence)
+  brandColor       String? // override couleur primaire
+  logoUrl          String?
+  createdAt        DateTime    @default(now())
+  workspaces       Workspace[]
+}
+
+model Workspace {
+  id     String @id @default(cuid())
+  name   String
+  slug   String @unique
+  orgId  String
+  org    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  region String @default("eu") // eu | us | sa | asia
+  integrations String @default("{}") // JSON : intégrations tierces (ex. Cheap Inboxes : clé API chiffrée)
+  createdAt DateTime @default(now())
+
+  memberships     Membership[]
+  apiKeys         ApiKey[]
+  domains         Domain[]
+  mailboxes       Mailbox[]
+  ipPools         IpPool[]
+  placementTests  PlacementTest[]
+  blacklistChecks BlacklistCheck[]
+  suppressions    SuppressionEntry[]
+  verifications   EmailVerification[]
+  contacts        Contact[]
+  lists           ContactList[]
+  segments        Segment[]
+  forms           Form[]
+  templates       Template[]
+  campaigns       Campaign[]
+  flows           Flow[]
+  messages        EmailMessage[]
+  webhooks        WebhookEndpoint[]
+  inbound         InboundEmail[]
+  threads         InboxThread[]
+  usage           UsageCounter[]
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  memberships  Membership[]
+  sessions     Session[]
+}
+
+model Membership {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  role        String    @default("owner") // owner | admin | member
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, workspaceId])
+}
+
+model Session {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  prefix      String // gm_live_xxxx (préfixe visible)
+  hash        String // hash du secret complet
+  scopes      String    @default("[\"emails:send\"]") // JSON array
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+// ============================================================================
+// INFRASTRUCTURE — domaines, DNS, boîtes d'envoi, pools d'IP
+// ============================================================================
+
+model Domain {
+  id            String      @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name          String
+  status        String      @default("pending") // pending | verifying | verified | error
+  provider      String      @default("manual") // manual | cloudflare
+  region        String      @default("eu")
+  dkimSelector  String      @default("gm1")
+  dkimPublicKey String?
+  trackingCname String?
+  verifiedAt    DateTime?
+  createdAt     DateTime    @default(now())
+  dnsRecords    DnsRecord[]
+  mailboxes     Mailbox[]
+
+  @@index([workspaceId])
+}
+
+model DnsRecord {
+  id            String    @id @default(cuid())
+  domainId      String
+  domain        Domain    @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  type          String // MX | TXT | CNAME
+  host          String
+  value         String
+  priority      Int?
+  purpose       String // spf | dkim | dmarc | mx | tracking | bimi
+  status        String    @default("pending") // pending | verified | failed
+  lastCheckedAt DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+model Mailbox {
+  id              String           @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  domainId        String?
+  domain          Domain?          @relation(fields: [domainId], references: [id])
+  email           String
+  displayName     String?
+  provider        String // gmail | outlook | smtp | airmail
+  status          String           @default("disconnected") // active | warming | paused | disconnected
+  dailyLimit      Int              @default(40)
+  sentToday       Int              @default(0)
+  warmupEnabled   Boolean          @default(false)
+  warmupStage     Int              @default(0) // jour de ramp
+  reputationScore Int              @default(100) // 0-100
+  oauthData       String? // JSON tokens chiffrés (démo : placeholder)
+  smtpConfig      String? // JSON
+  createdAt       DateTime         @default(now())
+  warmup          WarmupActivity[]
+  enrollments     Enrollment[]
+  threads         InboxThread[]
+
+  @@unique([workspaceId, email])
+  @@index([workspaceId])
+}
+
+model IpPool {
+  id              String   @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name            String
+  type            String   @default("shared") // shared | dedicated
+  region          String   @default("eu")
+  ipAddress       String?
+  status          String   @default("active") // active | warming | paused
+  reputationScore Int      @default(100)
+  autoWarmup      Boolean  @default(true)
+  createdAt       DateTime @default(now())
+}
+
+// ============================================================================
+// DÉLIVRABILITÉ — warmup, placement, blacklists, suppression, vérification
+// ============================================================================
+
+model WarmupActivity {
+  id              String   @id @default(cuid())
+  mailboxId       String
+  mailbox         Mailbox  @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  date            DateTime @default(now())
+  sent            Int      @default(0)
+  opened          Int      @default(0)
+  replied         Int      @default(0)
+  savedFromSpam   Int      @default(0)
+  reputationScore Int      @default(100)
+}
+
+model PlacementTest {
+  id              String   @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name            String
+  status          String   @default("running") // running | done | failed
+  inboxPct        Int      @default(0)
+  promotionsPct   Int      @default(0)
+  spamPct         Int      @default(0)
+  spamScore       Float    @default(0)
+  providerResults String? // JSON par provider (gmail/outlook/yahoo)
+  recommendations String? // JSON list
+  createdAt       DateTime @default(now())
+}
+
+model BlacklistCheck {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  target      String // domaine ou IP
+  listsChecked Int     @default(0)
+  listedOn    String   @default("[]") // JSON array des DNSBL où listé
+  status      String   @default("clean") // clean | listed
+  createdAt   DateTime @default(now())
+}
+
+model SuppressionEntry {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  email       String
+  reason      String // unsubscribe | bounce | complaint | manual
+  source      String?
+  createdAt   DateTime @default(now())
+
+  @@unique([workspaceId, email])
+}
+
+model EmailVerification {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  email       String
+  result      String // valid | invalid | risky | catch_all | unknown
+  score       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+// ============================================================================
+// AUDIENCES — contacts, listes, segments, formulaires
+// ============================================================================
+
+model Contact {
+  id              String                  @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  email           String
+  firstName       String?
+  lastName        String?
+  company         String?
+  attributes      String                  @default("{}") // JSON attributs custom
+  status          String                  @default("subscribed") // subscribed | unsubscribed | bounced | pending
+  consentSource   String? // form | import | api | checkout
+  consentAt       DateTime?
+  doubleOptIn     Boolean                 @default(false)
+  engagementScore Int                     @default(0)
+  predictedClv    Float?
+  churnRisk       Float? // 0-1
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  listMemberships ContactListMembership[]
+  enrollments     Enrollment[]
+  threads         InboxThread[]
+
+  @@unique([workspaceId, email])
+  @@index([workspaceId])
+}
+
+model ContactList {
+  id          String                  @id @default(cuid())
+  workspaceId String
+  workspace   Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  type        String                  @default("static") // static | dynamic
+  createdAt   DateTime                @default(now())
+  members     ContactListMembership[]
+}
+
+model ContactListMembership {
+  id        String      @id @default(cuid())
+  listId    String
+  list      ContactList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  contactId String
+  contact   Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@unique([listId, contactId])
+}
+
+model Segment {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  definition  String   @default("{\"match\":\"all\",\"conditions\":[]}") // JSON arbre de conditions
+  matchCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Form {
+  id             String   @id @default(cuid())
+  workspaceId    String
+  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name           String
+  type           String   @default("popup") // popup | embed | landing
+  fields         String   @default("[]") // JSON
+  doubleOptIn    Boolean  @default(true)
+  status         String   @default("draft") // draft | live
+  views          Int      @default(0)
+  submissions    Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+
+// ============================================================================
+// COMPOSER — templates (drag & drop, React Email, HTML)
+// ============================================================================
+
+model Template {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  kind        String   @default("drag") // drag | react_email | html
+  category    String? // welcome | promo | transactional | newsletter ...
+  subject     String?
+  design      String? // JSON blocs (éditeur drag-and-drop)
+  html        String?
+  reactSource String? // code React Email
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ============================================================================
+// OUTREACH & BROADCASTS — campagnes (séquences) et diffusions
+// ============================================================================
+
+model Campaign {
+  id             String         @id @default(cuid())
+  workspaceId    String
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name           String
+  type           String         @default("outreach") // outreach | broadcast
+  status         String         @default("draft") // draft | scheduled | running | paused | completed
+  subject        String?
+  segmentId      String?
+  scheduleAt     DateTime?
+  sendWindow     String? // JSON {days, startHour, endHour, timezone}
+  mailboxRotation Boolean       @default(true)
+  espMatching    Boolean        @default(false)
+  abTesting      Boolean        @default(false)
+  sendTimeOpt    Boolean        @default(false)
+  stats          String         @default("{}") // JSON {sent, delivered, opened, clicked, replied, bounced}
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  steps          SequenceStep[]
+  enrollments    Enrollment[]
+  threads        InboxThread[]
+
+  @@index([workspaceId])
+}
+
+model SequenceStep {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  order      Int
+  type       String   @default("email") // email | wait | condition
+  subject    String?
+  body       String? // peut contenir spintax {a|b} et variables {{first_name}}
+  waitDays   Int?
+  condition  String? // JSON {if: replied/opened/clicked, then: stop/branch}
+  abVariants String? // JSON [{subject, body, weight}]
+  createdAt  DateTime @default(now())
+}
+
+model Enrollment {
+  id           String    @id @default(cuid())
+  campaignId   String
+  campaign     Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contactId    String
+  contact      Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  mailboxId    String?
+  mailbox      Mailbox?  @relation(fields: [mailboxId], references: [id])
+  currentStep  Int       @default(0)
+  status       String    @default("active") // active | replied | completed | bounced | unsubscribed | paused
+  nextActionAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([campaignId, contactId])
+}
+
+// ============================================================================
+// AUTOMATION — flows visuels
+// ============================================================================
+
+model Flow {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  status      String   @default("draft") // draft | live | paused
+  trigger     String   @default("{}") // JSON {type, params}
+  nodes       String   @default("[]") // JSON graphe du canvas
+  goal        String? // JSON objectif de sortie
+  stats       String   @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ============================================================================
+// MESSAGING — messages e-mail unifiés, events, webhooks, inbound
+// ============================================================================
+
+model EmailMessage {
+  id             String       @id @default(cuid())
+  workspaceId    String
+  workspace      Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  source         String       @default("transactional") // transactional | broadcast | outreach | warmup
+  providerId     String? // id renvoyé par le provider (Resend...)
+  mailboxId      String?
+  campaignId     String?
+  contactId      String?
+  fromEmail      String
+  toEmail        String
+  subject        String
+  html           String?
+  text           String?
+  status         String       @default("queued") // queued | sent | delivered | opened | clicked | bounced | complained | failed
+  scheduledAt    DateTime?
+  sentAt         DateTime?
+  idempotencyKey String?
+  test           Boolean      @default(false)
+  meta           String       @default("{}")
+  createdAt      DateTime     @default(now())
+  events         EmailEvent[]
+
+  @@index([workspaceId])
+  @@index([idempotencyKey])
+}
+
+model EmailEvent {
+  id         String       @id @default(cuid())
+  messageId  String
+  message    EmailMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  type       String // queued | sent | delivered | opened | clicked | bounced | complained | unsubscribed
+  data       String? // JSON (lien cliqué, raison de bounce...)
+  occurredAt DateTime     @default(now())
+}
+
+model WebhookEndpoint {
+  id          String            @id @default(cuid())
+  workspaceId String
+  workspace   Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  url         String
+  events      String            @default("[\"delivered\",\"opened\",\"clicked\",\"bounced\",\"complained\"]") // JSON
+  secret      String
+  status      String            @default("active") // active | disabled
+  createdAt   DateTime          @default(now())
+  deliveries  WebhookDelivery[]
+}
+
+model WebhookDelivery {
+  id             String          @id @default(cuid())
+  endpointId     String
+  endpoint       WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  eventType      String
+  payload        String
+  responseStatus Int?
+  success        Boolean         @default(false)
+  attempts       Int             @default(0)
+  createdAt      DateTime        @default(now())
+}
+
+model InboundEmail {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  fromEmail   String
+  toEmail     String
+  subject     String
+  text        String?
+  html        String?
+  parsed      String? // JSON
+  createdAt   DateTime @default(now())
+}
+
+// ============================================================================
+// INBOX UNIFIÉE — threads & messages (Master Inbox / Unibox)
+// ============================================================================
+
+model InboxThread {
+  id            String        @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contactId     String?
+  contact       Contact?      @relation(fields: [contactId], references: [id])
+  mailboxId     String?
+  mailbox       Mailbox?      @relation(fields: [mailboxId], references: [id])
+  campaignId    String?
+  campaign      Campaign?     @relation(fields: [campaignId], references: [id])
+  subject       String
+  category      String? // interested | not_interested | ooo | unsubscribe | bounce | neutral
+  status        String        @default("open") // open | snoozed | archived
+  assignee      String?
+  lastMessageAt DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  messages      InboxMessage[]
+
+  @@index([workspaceId])
+}
+
+model InboxMessage {
+  id          String      @id @default(cuid())
+  threadId    String
+  thread      InboxThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  direction   String // inbound | outbound
+  fromEmail   String
+  toEmail     String
+  body        String
+  aiDraft     Boolean     @default(false)
+  sentByAgent Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+}
+
+// ============================================================================
+// BILLING — quotas & compteurs d'usage
+// ============================================================================
+
+model UsageCounter {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  period      String // YYYY-MM
+  metric      String // emails_sent | contacts | ai_credits | verifications
+  used        Int      @default(0)
+  quota       Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  @@unique([workspaceId, period, metric])
+}
+
+// ============================================================================
+// JOBS — file d'attente asynchrone (envois, warmup, webhooks, batchs)
+// ============================================================================
+
+model Job {
+  id          String   @id @default(cuid())
+  type        String // send_email | run_warmup | deliver_webhook | process_sequence | simulate_events | verify_dns ...
+  payload     String   @default("{}")
+  status      String   @default("pending") // pending | running | done | failed
+  runAt       DateTime @default(now())
+  attempts    Int      @default(0)
+  maxAttempts Int      @default(3)
+  lastError   String?
+  result      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, runAt])
+}

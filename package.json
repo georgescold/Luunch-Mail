@@ -1,0 +1,56 @@
+{
+  "name": "luunch-mail",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Luunch Mail — plateforme e-mail tout-en-un (cold outreach + marketing automation + API transactionnelle). Réunit le meilleur de Smartlead, Instantly, Klaviyo, ActiveCampaign et Resend.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "prisma db push --force-reset && tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "setup": "prisma generate && prisma db push && tsx prisma/seed.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.2.1",
+    "@react-email/components": "^0.0.32",
+    "bcryptjs": "^2.4.3",
+    "clsx": "^2.1.1",
+    "imapflow": "^1.4.0",
+    "lucide-react": "^0.469.0",
+    "mailparser": "^3.9.9",
+    "next": "^15.1.4",
+    "nodemailer": "^6.10.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-email": "^3.0.4",
+    "resend": "^4.0.1",
+    "tailwind-merge": "^2.6.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/mailparser": "^3.4.6",
+    "@types/node": "^22.10.5",
+    "@types/nodemailer": "^6.4.24",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "prisma": "^6.2.1",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
