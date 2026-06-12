@@ -13,6 +13,7 @@ const SCOPES: { id: string; label: string; hint: string }[] = [
   { id: "emails:send", label: "emails:send", hint: "Envoyer des e-mails (transactionnel & broadcast)." },
   { id: "contacts:write", label: "contacts:write", hint: "Créer et mettre à jour des contacts." },
   { id: "webhooks:read", label: "webhooks:read", hint: "Lire les endpoints et livraisons webhook." },
+  { id: "monitor:read", label: "monitor:read", hint: "Monitoring à distance : campagnes, boîtes, domaines, inbox, délivrabilité." },
 ];
 
 function SubmitButton() {

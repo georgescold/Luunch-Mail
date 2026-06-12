@@ -7,7 +7,7 @@ import { generateApiKey, randomToken } from "@/lib/core/crypto";
 import { sendEmail } from "@/lib/email/messaging";
 
 /** Scopes disponibles pour une clé API. */
-const VALID_SCOPES = ["emails:send", "contacts:write", "webhooks:read"];
+const VALID_SCOPES = ["emails:send", "contacts:write", "webhooks:read", "monitor:read"];
 
 /** Événements webhook abonnables. */
 const VALID_EVENTS = ["delivered", "opened", "clicked", "bounced", "complained"];

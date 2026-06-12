@@ -133,6 +133,24 @@ curl -X POST http://localhost:3000/api/v1/emails \
 - **Webhooks** : événements signés (`gigamail-signature`) vers vos endpoints (delivered/opened/clicked/bounced/complained). Réception des events d'un provider réel sur `POST /api/webhooks/:provider`.
 - **Inbound** : `POST /api/inbound` (parsing) → alimente l'inbox unifiée.
 
+## 📡 API de monitoring
+
+Tout l'état du workspace est lisible à distance (scope **`monitor:read`** sur la clé API) :
+
+| Endpoint | Contenu |
+|---|---|
+| `GET /api/v1/overview` | KPIs des deux pôles (outreach : envois, réponses, intéressés, bounces ; marketing : ouvertures, clics) + santé infra (boîtes, domaines, réputation) |
+| `GET /api/v1/campaigns` | Campagnes avec stats — filtres `?type=` `?status=`, pagination |
+| `GET /api/v1/campaigns/:id` | Détail : stats, séquence d'étapes, inscrits par statut, réponses positives |
+| `GET /api/v1/mailboxes` | Boîtes : statut, quota du jour, warmup, réputation |
+| `GET /api/v1/domains` | Domaines : statut DNS, enregistrements, nb de boîtes |
+| `GET /api/v1/inbox` | Conversations — filtres `?category=` `?campaign=` + résumé par catégorie |
+| `GET /api/v1/deliverability` | Bounces/plaintes vs seuils Google-Yahoo, blacklists, dernier test de placement |
+
+```bash
+curl -H "Authorization: Bearer gm_live_…" https://votre-app.com/api/v1/overview
+```
+
 ---
 
 ## 🔒 Délivrabilité & conformité (brief §6)
