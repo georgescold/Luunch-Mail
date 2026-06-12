@@ -7,12 +7,26 @@ const API_BASE = process.env.CHEAPINBOXES_API_URL || "https://api.cheapinboxes.c
 
 type CiMailbox = {
   id: string;
+  domain_id?: string;
   full_email: string;
   first_name?: string | null;
   last_name?: string | null;
   status: string; // active | provisioning | ...
   source_provider?: string; // google | microsoft
   daily_limit?: number;
+};
+
+type CiDomain = {
+  id: string;
+  domain: string;
+  status: string; // active | provisioning | ...
+  infra_provider?: string; // google | microsoft
+};
+
+/** Hôtes SMTP/IMAP de secours si l'API ne les renvoie pas, selon le fournisseur. */
+const PROVIDER_DEFAULTS: Record<string, { smtpHost: string; imapHost: string; provider: string }> = {
+  google: { smtpHost: "smtp.gmail.com", imapHost: "imap.gmail.com", provider: "gmail" },
+  microsoft: { smtpHost: "smtp.office365.com", imapHost: "outlook.office365.com", provider: "outlook" },
 };
 
 type CiCredentials = {
@@ -59,8 +73,47 @@ export async function validateKey(apiKey: string): Promise<number> {
   return page.pagination?.total ?? page.mailboxes?.length ?? 0;
 }
 
+/** Importe les domaines actifs de Cheap Inboxes (DNS géré chez eux → vérifié). */
+export async function importDomains(workspaceId: string, apiKey: string) {
+  const all: CiDomain[] = [];
+  let offset = 0;
+  const limit = 100;
+  for (let i = 0; i < 100; i++) {
+    const page = await ci<{ domains: CiDomain[]; pagination?: { total: number } }>(
+      apiKey,
+      `/v1/domains?limit=${limit}&offset=${offset}`,
+    );
+    all.push(...(page.domains ?? []));
+    const total = page.pagination?.total ?? all.length;
+    offset += limit;
+    if (offset >= total || (page.domains ?? []).length === 0) break;
+  }
+
+  let imported = 0;
+  for (const d of all) {
+    if (d.status !== "active") continue;
+    const name = d.domain.toLowerCase();
+    const existing = await db.domain.findFirst({ where: { workspaceId, name } });
+    if (existing) {
+      // SPF/DKIM/DMARC sont posés et maintenus par Cheap Inboxes
+      if (existing.provider === "cheapinboxes" && existing.status !== "verified") {
+        await db.domain.update({ where: { id: existing.id }, data: { status: "verified", verifiedAt: new Date() } });
+      }
+      continue;
+    }
+    await db.domain.create({
+      data: { workspaceId, name, provider: "cheapinboxes", status: "verified", verifiedAt: new Date() },
+    });
+    imported++;
+  }
+  return { imported, total: all.length };
+}
+
 /** Importe / met à jour les boîtes actives de Cheap Inboxes dans le workspace. */
 export async function importMailboxes(workspaceId: string, apiKey: string) {
+  // D'abord les domaines, pour que chaque boîte se rattache au sien.
+  await importDomains(workspaceId, apiKey).catch(() => ({ imported: 0, total: 0 }));
+
   const boxes = await listAllMailboxes(apiKey);
   let imported = 0;
   let skipped = 0;
@@ -75,17 +128,17 @@ export async function importMailboxes(workspaceId: string, apiKey: string) {
       const { credentials } = await ci<{ credentials: CiCredentials }>(apiKey, `/v1/mailboxes/${b.id}/credentials`);
       const c = credentials ?? {};
       const password = (c.app_password || c.password || "").replace(/\s+/g, "");
-      const smtpHost = c.smtp_host || "smtp.gmail.com";
       if (!password) { skipped++; continue; }
 
+      const defaults = PROVIDER_DEFAULTS[b.source_provider ?? "google"] ?? PROVIDER_DEFAULTS.google;
       const smtpPort = c.smtp_port || 587;
       const smtpConfig = serializeMailboxCreds({
         user: c.email || b.full_email,
         password,
-        smtpHost,
+        smtpHost: c.smtp_host || defaults.smtpHost,
         smtpPort,
         smtpSecure: smtpPort === 465, // 587 = STARTTLS (secure:false), 465 = SSL
-        imapHost: c.imap_host || "imap.gmail.com",
+        imapHost: c.imap_host || defaults.imapHost,
         imapPort: c.imap_port || 993,
         imapSecure: true,
       });
@@ -102,14 +155,19 @@ export async function importMailboxes(workspaceId: string, apiKey: string) {
           workspaceId,
           email: b.full_email.toLowerCase(),
           displayName,
-          provider: "gmail", // boîtes Google ; envoi/réception via SMTP/IMAP (app password)
+          provider: defaults.provider, // envoi/réception via SMTP/IMAP (app password)
           domainId: matchedDomain?.id ?? null,
           status: "warming",
           warmupEnabled: true,
           dailyLimit: b.daily_limit ?? 45,
           smtpConfig,
         },
-        update: { smtpConfig, dailyLimit: b.daily_limit ?? 45, ...(displayName ? { displayName } : {}) },
+        update: {
+          smtpConfig,
+          dailyLimit: b.daily_limit ?? 45,
+          domainId: matchedDomain?.id ?? undefined,
+          ...(displayName ? { displayName } : {}),
+        },
       });
       imported++;
     } catch (err) {

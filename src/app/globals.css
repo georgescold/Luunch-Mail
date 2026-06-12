@@ -8,26 +8,29 @@
     text-rendering: optimizeLegibility;
   }
   body {
-    font-family: var(--font-poppins), system-ui, sans-serif;
-    color: #111827;
-    background: #f9fafb;
-    font-size: 16px;
+    font-family: var(--font-body), system-ui, sans-serif;
+    color: #1c2722;
+    background: #f7f6f2;
+    font-size: 15px;
     line-height: 1.6;
   }
+  /* Les titres prennent la fonte headline mais HÉRITENT de la couleur du
+     contexte : un titre posé sur un fond sombre reste lisible. Ne jamais
+     forcer une couleur de texte globale ici (cause de noir-sur-noir). */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-fredoka), system-ui, sans-serif;
-    color: #111827;
+    font-family: var(--font-headline), system-ui, sans-serif;
+    color: inherit;
   }
   code, pre, kbd {
-    font-family: var(--font-roboto-mono), ui-monospace, monospace;
+    font-family: var(--font-mono), ui-monospace, monospace;
   }
   ::selection {
-    background: rgba(34, 197, 94, 0.22);
+    background: rgba(232, 182, 76, 0.35); /* or lunaire */
   }
-  /* Scrollbars discrètes */
+  /* Scrollbars discrètes, assorties au papier */
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 9999px; border: 2px solid #f9fafb; }
-  ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+  ::-webkit-scrollbar-thumb { background: #d3cfc2; border-radius: 9999px; border: 2px solid #f7f6f2; }
+  ::-webkit-scrollbar-thumb:hover { background: #a39e8f; }
 
   /* Accessibilité : on coupe les animations si l'utilisateur le demande */
   @media (prefers-reduced-motion: reduce) {

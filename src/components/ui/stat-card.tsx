@@ -20,11 +20,11 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <div className={cn("group rounded-md border border-line bg-surface p-sp-5 shadow-sm transition-[box-shadow,border-color] duration-200 hover:border-line-strong hover:shadow-md", className)}>
+    <div className={cn("rounded-md border border-line bg-surface p-sp-5 shadow-sm transition-[box-shadow,border-color] duration-200 hover:border-line-strong hover:shadow-md", className)}>
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-ink-faint">{label}</span>
         {Icon && (
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-soft text-primary transition-colors duration-200 group-hover:bg-primary group-hover:text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-soft text-primary-fg">
             <Icon size={16} />
           </span>
         )}

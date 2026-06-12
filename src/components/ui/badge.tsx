@@ -3,13 +3,13 @@ import { cn } from "@/lib/core/cn";
 export type BadgeTone = "neutral" | "primary" | "success" | "warning" | "error" | "info" | "purple";
 
 const tones: Record<BadgeTone, string> = {
-  neutral: "bg-fill-muted text-ink-faint",
-  primary: "bg-primary-soft text-primary",
+  neutral: "bg-fill-muted text-ink-muted",
+  primary: "bg-primary-soft text-primary-fg",
   success: "bg-success-soft text-success-fg",
   warning: "bg-warning-soft text-warning-fg",
-  error: "bg-error-soft text-error",
-  info: "bg-[#DBEAFE] text-secondary",
-  purple: "bg-[#EDE9FE] text-[#6D28D9]",
+  error: "bg-error-soft text-error-fg",
+  info: "bg-info-soft text-info-fg",
+  purple: "bg-violet-soft text-violet-fg",
 };
 
 /** Chip de statut (radius pill, 4px/12px padding, 12px weight 500) — DESIGN.md §Chips. */

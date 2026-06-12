@@ -16,7 +16,7 @@ export function ComingSoon({
 }) {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-      <span className="mb-sp-5 flex h-16 w-16 animate-float-soft items-center justify-center rounded-pill bg-primary-soft text-primary">
+      <span className="mb-sp-5 flex h-16 w-16 items-center justify-center rounded-pill bg-primary-soft text-primary-fg">
         <Hourglass size={30} />
       </span>
       <Badge tone="primary" className="mb-sp-3">

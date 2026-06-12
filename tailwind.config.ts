@@ -1,65 +1,72 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Design system Gigamail — application stricte de ./docs/DESIGN.md
- * (couleurs, typo Fredoka/Poppins/Roboto Mono, base 8px, radius, ombres).
+ * Design system Luunch Mail — application stricte de ./docs/DESIGN.md.
+ * Direction « courrier éditorial » : papier chaud, encre sapin, vert sève
+ * pour l'action, accent lune doré. Tous les couples texte/fond passent AA.
  */
 const config: Config = {
   content: ["./src/**/*.{ts,tsx,js,jsx,mdx}"],
   theme: {
     extend: {
       colors: {
-        // Couleurs de marque (DESIGN.md « ChatBubble » §Colors)
+        // Action — vert sève profond (blanc sur primary : 6,4:1)
         primary: {
-          DEFAULT: "#22C55E", // vert — actions, accents
-          hover: "#16A34A",
-          soft: "#DCFCE7", // surface verte claire (hover, chips sélectionnés)
-          fg: "#15803D", // vert foncé pour texte sur fond clair
+          DEFAULT: "#1E6B4A",
+          hover: "#185539",
+          soft: "#E4EFE6", // fonds sélectionnés, hover — texte : primary ou primary-fg
+          fg: "#1A5C40", // texte vert sur fond clair
         },
-        secondary: { DEFAULT: "#3B82F6" }, // bleu — liens, infos
-        tertiary: { DEFAULT: "#A855F7", soft: "#F3E8FF", fg: "#7E22CE" }, // violet — réactions, premium
-        success: { DEFAULT: "#22C55E", fg: "#15803D", soft: "#BBF7D0" },
-        warning: { DEFAULT: "#F59E0B", fg: "#B45309", soft: "#FEF3C7" },
-        error: { DEFAULT: "#EF4444", hover: "#DC2626", soft: "#FEF2F2" },
-        info: { DEFAULT: "#3B82F6" },
-        // Échelle neutre utilisée par les composants normés
+        // Informatif — bleu encre
+        secondary: { DEFAULT: "#2E66D0", fg: "#2456AE", soft: "#E8EEFA" },
+        // Violet réservé aux nœuds « condition/action » des automations
+        violet: { DEFAULT: "#7C5CBF", fg: "#5B3FA3", soft: "#EFEAF9" },
+        success: { DEFAULT: "#1E6B4A", fg: "#1A5C40", soft: "#E4EFE6" },
+        warning: { DEFAULT: "#B07C1B", fg: "#7E5A10", soft: "#F7EDD8" },
+        error: { DEFAULT: "#BF4040", hover: "#A33434", fg: "#A23636", soft: "#F9ECEA" },
+        info: { DEFAULT: "#2E66D0", fg: "#2456AE", soft: "#E8EEFA" },
+        // Accent de marque — or lunaire (Luunch). Avec parcimonie : logo,
+        // panneau sombre, petites mises en valeur. Jamais en texte sur clair.
+        moon: "#E8B64C",
+        // Surfaces sombres (auth, blocs de code) — texte clair OBLIGATOIRE
+        pine: { DEFAULT: "#142019", raised: "#1B2A21" },
+        paper: "#F7F6F2", // fond d'application (blanc cassé chaud)
         surface: "#FFFFFF",
         ink: {
-          DEFAULT: "#111827", // texte principal / tooltips
-          muted: "#4B5563",
-          faint: "#6B7280",
-          disabled: "#9CA3AF",
+          DEFAULT: "#1C2722", // texte principal (encre sapin)
+          muted: "#46524C",
+          faint: "#6A7570",
+          disabled: "#9CA59F",
+          inverse: "#F4F2EA", // texte sur pine
         },
         line: {
-          DEFAULT: "#E5E7EB", // bordure carte / divider
-          strong: "#D1D5DB", // bordure input
-          hover: "#9CA3AF",
+          DEFAULT: "#E6E3DA", // bordure carte / divider (chaud)
+          strong: "#D3CFC2", // bordure input
+          hover: "#A39E8F",
         },
         fill: {
-          subtle: "#F9FAFB", // hover de ligne, input disabled
-          muted: "#F3F4F6", // chips neutres, fonds
+          subtle: "#FAF9F5", // hover de ligne, input disabled
+          muted: "#F0EEE6", // chips neutres, fonds
         },
       },
       fontFamily: {
         // chargées via next/font dans le layout (variables CSS)
-        headline: ["var(--font-fredoka)", "system-ui", "sans-serif"],
-        body: ["var(--font-poppins)", "system-ui", "sans-serif"],
-        mono: ["var(--font-roboto-mono)", "ui-monospace", "monospace"],
-        sans: ["var(--font-poppins)", "system-ui", "sans-serif"],
+        headline: ["var(--font-headline)", "system-ui", "sans-serif"],
+        body: ["var(--font-body)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        sans: ["var(--font-body)", "system-ui", "sans-serif"],
       },
       fontSize: {
-        // Échelle typographique DESIGN.md
-        h1: ["36px", { lineHeight: "1.2", fontWeight: "700" }],
-        h2: ["28px", { lineHeight: "1.25", fontWeight: "700" }],
-        h3: ["22px", { lineHeight: "1.3", fontWeight: "600" }],
-        h4: ["18px", { lineHeight: "1.35", fontWeight: "600" }],
-        body: ["16px", { lineHeight: "1.6" }],
-        sm: ["14px", { lineHeight: "1.5" }],
+        h1: ["34px", { lineHeight: "1.15", fontWeight: "700", letterSpacing: "-0.02em" }],
+        h2: ["27px", { lineHeight: "1.2", fontWeight: "700", letterSpacing: "-0.015em" }],
+        h3: ["21px", { lineHeight: "1.3", fontWeight: "600", letterSpacing: "-0.01em" }],
+        h4: ["17px", { lineHeight: "1.35", fontWeight: "600" }],
+        body: ["15px", { lineHeight: "1.6" }],
+        sm: ["13.5px", { lineHeight: "1.5" }],
         xs: ["12px", { lineHeight: "1.4", fontWeight: "500" }],
-        mono: ["14px", { lineHeight: "1.6" }],
+        mono: ["13px", { lineHeight: "1.6" }],
       },
       spacing: {
-        // Base 8px (DESIGN.md §Spacing) — tokens nommés
         "sp-1": "4px",
         "sp-2": "8px",
         "sp-3": "12px",
@@ -70,19 +77,21 @@ const config: Config = {
         "sp-8": "64px",
       },
       borderRadius: {
-        sm: "8px",
-        md: "14px",
-        lg: "20px", // ChatBubble : grand radius friendly (20px)
+        sm: "6px",
+        md: "10px",
+        lg: "16px",
         pill: "9999px",
         circle: "50%",
       },
       boxShadow: {
-        sm: "0 1px 2px 0 rgba(0,0,0,0.06)",
-        md: "0 4px 6px -1px rgba(0,0,0,0.10)",
-        lg: "0 10px 15px -3px rgba(0,0,0,0.10)",
-        xl: "0 20px 25px -5px rgba(0,0,0,0.10)",
-        focus: "0 0 0 3px rgba(34,197,94,0.30)",
-        "focus-error": "0 0 0 3px rgba(239,68,68,0.20)",
+        // Ombres discrètes teintées encre — les cartes tiennent par leur
+        // bordure, pas par l'ombre (pas d'effet « cartes flottantes »).
+        sm: "0 1px 2px 0 rgba(28,39,34,0.05)",
+        md: "0 2px 8px -2px rgba(28,39,34,0.08)",
+        lg: "0 12px 24px -8px rgba(28,39,34,0.14)",
+        xl: "0 20px 32px -12px rgba(28,39,34,0.18)",
+        focus: "0 0 0 3px rgba(30,107,74,0.22)",
+        "focus-error": "0 0 0 3px rgba(191,64,64,0.20)",
       },
       keyframes: {
         "fade-in": {
@@ -105,10 +114,6 @@ const config: Config = {
           "0%": { backgroundPosition: "-400px 0" },
           "100%": { backgroundPosition: "400px 0" },
         },
-        "float-soft": {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-6px)" },
-        },
       },
       animation: {
         "fade-in": "fade-in 0.2s ease both",
@@ -116,7 +121,6 @@ const config: Config = {
         "pop-in": "pop-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both",
         rise: "rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both",
         shimmer: "shimmer 1.6s linear infinite",
-        "float-soft": "float-soft 5s ease-in-out infinite",
       },
     },
   },

@@ -142,11 +142,11 @@ export default async function SettingsPage() {
                   id="wl-color"
                   name="brandColor"
                   type="color"
-                  defaultValue={org?.brandColor || "#22C55E"}
+                  defaultValue={org?.brandColor || "#1E6B4A"}
                   className="h-10 w-14 shrink-0 cursor-pointer rounded-sm border border-line-strong bg-surface p-sp-1"
                   aria-label="Couleur de marque"
                 />
-                <span className="font-mono text-sm text-ink-muted">{org?.brandColor || "#22C55E"}</span>
+                <span className="font-mono text-sm text-ink-muted">{org?.brandColor || "#1E6B4A"}</span>
               </div>
             </Field>
 

@@ -9,7 +9,7 @@ startWorker();
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const ctx = await requireAuth();
   return (
-    <div className="flex min-h-screen bg-fill-subtle">
+    <div className="flex min-h-screen bg-paper">
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar ctx={ctx} />

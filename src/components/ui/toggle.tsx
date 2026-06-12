@@ -1,14 +1,14 @@
 import { forwardRef } from "react";
 import { cn } from "@/lib/core/cn";
 
-/** Checkbox (DESIGN.md §Checkboxes) — 20px, radius 4px, coché orange. */
+/** Checkbox (DESIGN.md §Checkboxes) — 20px, radius 4px, coché vert sève. */
 export const Checkbox = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => (
     <input
       ref={ref}
       type="checkbox"
       className={cn(
-        "h-5 w-5 cursor-pointer rounded-[4px] border-line-strong accent-[#22C55E] transition-colors focus:outline-none focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50",
+        "h-5 w-5 cursor-pointer rounded-[4px] border-line-strong accent-[#1E6B4A] transition-colors focus:outline-none focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       {...props}
@@ -17,14 +17,14 @@ export const Checkbox = forwardRef<HTMLInputElement, React.InputHTMLAttributes<H
 );
 Checkbox.displayName = "Checkbox";
 
-/** Radio (DESIGN.md §Radio Buttons) — 20px, sélection orange. */
+/** Radio (DESIGN.md §Radio Buttons) — 20px, sélection vert sève. */
 export const Radio = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => (
     <input
       ref={ref}
       type="radio"
       className={cn(
-        "h-5 w-5 cursor-pointer border-line-strong accent-[#22C55E] focus:outline-none focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50",
+        "h-5 w-5 cursor-pointer border-line-strong accent-[#1E6B4A] focus:outline-none focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       {...props}

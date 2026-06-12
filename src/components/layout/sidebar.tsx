@@ -44,7 +44,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                     className={cn(
                       "group relative flex items-center gap-sp-3 overflow-hidden rounded-md px-sp-3 py-sp-2 text-sm transition-colors duration-150",
                       active
-                        ? "bg-primary-soft font-medium text-primary"
+                        ? "bg-primary-soft font-semibold text-primary-fg"
                         : "text-ink-muted hover:bg-fill-subtle hover:text-ink",
                     )}
                   >
@@ -54,7 +54,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                         active ? "scale-y-100" : "scale-y-0",
                       )}
                     />
-                    <Icon size={18} className={cn("shrink-0 transition-transform duration-150", !active && "group-hover:scale-110")} />
+                    <Icon size={18} className="shrink-0" />
                     {item.label}
                   </Link>
                 </li>

@@ -1,12 +1,13 @@
 import { cn } from "@/lib/core/cn";
 
-/** Carte normée DESIGN.md : fond blanc, bordure #E5E7EB, radius 12px, padding 24px, shadow-md. */
+/** Carte normée DESIGN.md : fond blanc, bordure chaude, radius 10px, padding 24px.
+ *  La carte tient par sa bordure — ombre minimale, pas d'effet flottant. */
 export function Card({ className, hover = false, ...props }: React.HTMLAttributes<HTMLDivElement> & { hover?: boolean }) {
   return (
     <div
       className={cn(
-        "rounded-md border border-line bg-surface p-sp-5 shadow-md transition-[box-shadow,transform,border-color] duration-200",
-        hover && "hover:-translate-y-0.5 hover:border-line-strong hover:shadow-lg",
+        "rounded-md border border-line bg-surface p-sp-5 shadow-sm transition-[box-shadow,border-color] duration-200",
+        hover && "hover:border-line-strong hover:shadow-md",
         className,
       )}
       {...props}

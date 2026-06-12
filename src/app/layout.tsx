@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Fredoka, Poppins, Roboto_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Figtree, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const fredoka = Fredoka({ subsets: ["latin"], variable: "--font-fredoka", weight: ["400", "500", "600", "700"], display: "swap" });
-const poppins = Poppins({ subsets: ["latin"], variable: "--font-poppins", weight: ["400", "500", "600", "700"], display: "swap" });
-const robotoMono = Roboto_Mono({ subsets: ["latin"], variable: "--font-roboto-mono", display: "swap" });
+const headline = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-headline", weight: ["500", "600", "700", "800"], display: "swap" });
+const body = Figtree({ subsets: ["latin"], variable: "--font-body", weight: ["400", "500", "600", "700"], display: "swap" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", weight: ["400", "500"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "Luunch Mail — Plateforme e-mail tout-en-un",
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${fredoka.variable} ${poppins.variable} ${robotoMono.variable}`}>
+    <html lang="fr" className={`${headline.variable} ${body.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );

@@ -36,7 +36,7 @@ export default function Welcome({ firstName = "ami" }: { firstName?: string }) {
         <Container style={{ padding: "24px" }}>
           <Heading>Bonjour {firstName} 👋</Heading>
           <Text>Merci de nous rejoindre. On a hâte de vous accompagner.</Text>
-          <Button href="https://exemple.fr" style={{ background: "#22C55E", color: "#fff", padding: "12px 20px", borderRadius: "8px" }}>
+          <Button href="https://exemple.fr" style={{ background: "#1E6B4A", color: "#fff", padding: "12px 20px", borderRadius: "8px" }}>
             Commencer
           </Button>
         </Container>

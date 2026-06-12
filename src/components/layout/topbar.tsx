@@ -9,7 +9,7 @@ const REGION_LABEL: Record<string, string> = { eu: "Europe", us: "Amérique du N
 
 export function Topbar({ ctx }: { ctx: AuthContext }) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line bg-surface/90 px-sp-5 pl-16 backdrop-blur lg:pl-sp-5">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line bg-surface px-sp-5 pl-16 lg:pl-sp-5">
       <div className="flex items-center gap-sp-3">
         <span className="font-headline font-semibold text-ink">{ctx.workspace.name}</span>
         <Badge tone="neutral" className="hidden sm:inline-flex">
@@ -23,7 +23,7 @@ export function Topbar({ ctx }: { ctx: AuthContext }) {
           <p className="text-sm font-medium text-ink">{ctx.user.name ?? ctx.user.email}</p>
           <p className="text-xs text-ink-faint">{ctx.role === "owner" ? "Propriétaire" : ctx.role}</p>
         </div>
-        <span className="relative flex h-9 w-9 items-center justify-center rounded-circle bg-secondary/15 text-sm font-semibold text-secondary">
+        <span className="relative flex h-9 w-9 items-center justify-center rounded-circle bg-primary-soft text-sm font-semibold text-primary-fg">
           {initials(ctx.user.name, ctx.user.email)}
           <span className="absolute -bottom-px -right-px h-2.5 w-2.5 rounded-circle border-2 border-surface bg-success" title="En ligne" />
         </span>

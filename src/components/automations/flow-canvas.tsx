@@ -25,11 +25,11 @@ const NODE_META: Record<
   CanvasNode["type"],
   { icon: typeof Zap; label: string; ring: string; chip: string; iconWrap: string }
 > = {
-  trigger: { icon: Zap, label: "Déclencheur", ring: "border-primary", chip: "bg-primary-soft text-primary", iconWrap: "bg-primary text-white" },
-  email: { icon: Mail, label: "E-mail", ring: "border-line", chip: "bg-primary-soft text-primary", iconWrap: "bg-primary-soft text-primary" },
+  trigger: { icon: Zap, label: "Déclencheur", ring: "border-primary", chip: "bg-primary-soft text-primary-fg", iconWrap: "bg-primary text-white" },
+  email: { icon: Mail, label: "E-mail", ring: "border-line", chip: "bg-primary-soft text-primary-fg", iconWrap: "bg-primary-soft text-primary-fg" },
   wait: { icon: Clock, label: "Attente", ring: "border-line", chip: "bg-warning-soft text-warning-fg", iconWrap: "bg-warning-soft text-warning-fg" },
-  condition: { icon: GitBranch, label: "Condition", ring: "border-line", chip: "bg-[#DBEAFE] text-secondary", iconWrap: "bg-[#DBEAFE] text-secondary" },
-  action: { icon: Tag, label: "Action", ring: "border-line", chip: "bg-[#EDE9FE] text-[#6D28D9]", iconWrap: "bg-[#EDE9FE] text-[#6D28D9]" },
+  condition: { icon: GitBranch, label: "Condition", ring: "border-line", chip: "bg-info-soft text-info-fg", iconWrap: "bg-info-soft text-info-fg" },
+  action: { icon: Tag, label: "Action", ring: "border-line", chip: "bg-violet-soft text-violet-fg", iconWrap: "bg-violet-soft text-violet-fg" },
 };
 
 const ADD_OPTIONS: { type: CanvasNode["type"]; label: string; icon: typeof Mail }[] = [

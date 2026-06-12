@@ -44,11 +44,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ token: 
   const ok = await unsubscribe(token);
   const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Désinscription — Luunch Mail</title>
-  <style>body{font-family:system-ui,sans-serif;background:#f9fafb;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;color:#111827}
-  .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:48px;max-width:440px;text-align:center;box-shadow:0 10px 15px -3px rgba(0,0,0,.1)}
-  .badge{width:56px;height:56px;border-radius:9999px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:16px;background:${ok ? "#dcfce7" : "#fee2e2"}}
-  h1{font-size:22px;margin:0 0 8px} p{color:#6b7280;line-height:1.6;margin:0}</style></head>
-  <body><div class="card"><div class="badge">${ok ? "✓" : "⚠️"}</div>
+  <style>body{font-family:system-ui,sans-serif;background:#f7f6f2;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;color:#1c2722}
+  .card{background:#fff;border:1px solid #e6e3da;border-radius:16px;padding:48px;max-width:440px;text-align:center;box-shadow:0 2px 8px -2px rgba(28,39,34,.08)}
+  .badge{width:56px;height:56px;border-radius:9999px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:16px;color:${ok ? "#1a5c40" : "#a23636"};background:${ok ? "#e4efe6" : "#f9ecea"}}
+  h1{font-size:22px;margin:0 0 8px} p{color:#6a7570;line-height:1.6;margin:0}</style></head>
+  <body><div class="card"><div class="badge">${ok ? "✓" : "!"}</div>
   <h1>${ok ? "Vous êtes désinscrit·e" : "Lien invalide"}</h1>
   <p>${ok ? "Vous ne recevrez plus d'e-mails marketing de cet expéditeur. Vous pouvez fermer cette page." : "Ce lien de désinscription est invalide ou a expiré."}</p>
   </div></body></html>`;

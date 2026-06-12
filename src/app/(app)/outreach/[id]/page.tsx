@@ -327,8 +327,8 @@ function StepRow({
     step.type === "wait"
       ? { icon: Clock, tone: "bg-warning-soft text-warning-fg", title: "Attente" }
       : step.type === "condition"
-        ? { icon: GitBranch, tone: "bg-[#EDE9FE] text-[#6D28D9]", title: "Condition" }
-        : { icon: Mail, tone: "bg-primary-soft text-primary", title: "E-mail" };
+        ? { icon: GitBranch, tone: "bg-violet-soft text-violet-fg", title: "Condition" }
+        : { icon: Mail, tone: "bg-primary-soft text-primary-fg", title: "E-mail" };
   const Icon = meta.icon;
 
   const cond = parseJson<{ if?: string; then?: string }>(step.condition, {});

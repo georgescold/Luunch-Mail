@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/core/cn";
 
-/** Tooltip (DESIGN.md §Tooltips) — fond #111827, texte blanc, 300ms show. */
+/** Tooltip (DESIGN.md §Tooltips) — fond ink, texte blanc, 300ms show. */
 export function Tooltip({ content, children, className }: { content: React.ReactNode; children: React.ReactNode; className?: string }) {
   const [show, setShow] = useState(false);
   return (
