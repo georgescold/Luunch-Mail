@@ -71,7 +71,7 @@ export default async function OutreachDetailPage({
     <>
       <div className="mb-sp-3">
         <Link href="/outreach" className="inline-flex items-center gap-sp-1 text-sm text-ink-faint hover:text-ink">
-          <ArrowLeft size={16} /> Toutes les séquences
+          <ArrowLeft size={16} /> Toutes les campagnes
         </Link>
       </div>
 
@@ -111,7 +111,7 @@ export default async function OutreachDetailPage({
           <div className="flex items-start gap-sp-3">
             <Info className="mt-sp-1 shrink-0 text-primary" size={20} />
             <div className="text-sm text-ink-muted">
-              <p className="font-medium text-ink">Avant de lancer cette séquence :</p>
+              <p className="font-medium text-ink">Avant de lancer cette campagne :</p>
               <ul className="mt-sp-2 list-inside list-disc space-y-sp-1">
                 {!hasEmailStep && <li>Ajoutez au moins une étape de type e-mail.</li>}
                 {campaign.enrollments.length === 0 && <li>Inscrivez des contacts via une liste ci-dessous.</li>}
@@ -137,7 +137,7 @@ export default async function OutreachDetailPage({
         <FeatureChip on={campaign.abTesting} icon={FlaskConical} label="A/B testing" />
       </div>
 
-      {/* KPIs de la séquence */}
+      {/* KPIs de la campagne */}
       <div className="grid grid-cols-2 gap-sp-4 lg:grid-cols-4">
         <StatCard label="Envoyés" value={num(stats.sent)} icon={Mail} hint={`${enrolledActive} inscrit(s) actif(s)`} />
         <StatCard label="Délivrés" value={ratio(stats.delivered ?? 0, stats.sent ?? 0)} />
@@ -176,7 +176,7 @@ export default async function OutreachDetailPage({
           <Card>
             <CardTitle>Inscrire des contacts</CardTitle>
             <CardDescription className="mt-sp-1">
-              Sélectionnez une liste : ses contacts abonnés sont inscrits et la séquence démarre.
+              Sélectionnez une liste : ses contacts abonnés sont inscrits et la campagne démarre.
             </CardDescription>
 
             {lists.length === 0 ? (
@@ -364,7 +364,7 @@ function StepRow({
         {step.type === "email" && (
           <div className="mt-sp-2 rounded-md border border-line bg-surface p-sp-4">
             <p className="text-sm font-semibold text-ink">
-              {step.subject || <span className="text-ink-disabled">(objet par défaut de la séquence)</span>}
+              {step.subject || <span className="text-ink-disabled">(objet par défaut de la campagne)</span>}
             </p>
             {step.body ? (
               <pre className="mt-sp-2 whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-ink-muted">

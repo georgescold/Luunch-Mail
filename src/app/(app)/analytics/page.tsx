@@ -177,7 +177,7 @@ export default async function AnalyticsPage() {
   const outreachTab = (
     <div className="space-y-sp-6">
       <div className="grid grid-cols-2 gap-sp-4 lg:grid-cols-4">
-        <StatCard label="E-mails outreach envoyés" value={num(oSent)} icon={Send} hint="cumul des séquences" />
+        <StatCard label="E-mails outreach envoyés" value={num(oSent)} icon={Send} hint="cumul des campagnes" />
         <StatCard
           label="Taux de réponse"
           value={pct(oReplyRate)}
@@ -205,7 +205,7 @@ export default async function AnalyticsPage() {
       <Card>
         <CardTitle>Volume outreach (14 jours)</CardTitle>
         <CardDescription>
-          E-mails de séquence envoyés par jour. Ouverture : {pct(oOpenRate, 0)} — indicative seulement, le tracking
+          E-mails de campagne envoyés par jour. Ouverture : {pct(oOpenRate, 0)} — indicative seulement, le tracking
           d&apos;ouverture en cold email est peu fiable (pixel souvent bloqué) ; pilotez au taux de réponse.
         </CardDescription>
         <div className="mt-sp-5">
@@ -215,22 +215,22 @@ export default async function AnalyticsPage() {
             <EmptyState
               icon={Send}
               title="Aucun envoi outreach"
-              description="Lancez une séquence pour suivre ici vos volumes, réponses et réponses positives."
-              action={<Link href="/outreach" className={buttonClasses({ size: "sm" })}>Créer une séquence</Link>}
+              description="Lancez une campagne pour suivre ici vos volumes, réponses et réponses positives."
+              action={<Link href="/outreach" className={buttonClasses({ size: "sm" })}>Créer une campagne</Link>}
             />
           )}
         </div>
       </Card>
 
       <Card>
-        <CardTitle>Performance par séquence</CardTitle>
-        <CardDescription>Envoyés, réponses et intéressés — cliquez pour ouvrir la séquence ou ses réponses.</CardDescription>
+        <CardTitle>Performance par campagne</CardTitle>
+        <CardDescription>Envoyés, réponses et intéressés — cliquez pour ouvrir la campagne ou ses réponses.</CardDescription>
         <div className="mt-sp-5">
           {outreachRows.length > 0 ? (
             <Table>
               <THead>
                 <TR>
-                  <TH>Séquence</TH>
+                  <TH>Campagne</TH>
                   <TH>Statut</TH>
                   <TH className="text-right">Envoyés</TH>
                   <TH className="text-right">Réponses</TH>
@@ -271,9 +271,9 @@ export default async function AnalyticsPage() {
           ) : (
             <EmptyState
               icon={Send}
-              title="Aucune séquence"
-              description="Créez une séquence d'outreach : ses stats apparaîtront ici, réponse par réponse."
-              action={<Link href="/outreach" className={buttonClasses({ size: "sm" })}>Créer une séquence</Link>}
+              title="Aucune campagne"
+              description="Créez une campagne d'outreach : ses stats apparaîtront ici, réponse par réponse."
+              action={<Link href="/outreach" className={buttonClasses({ size: "sm" })}>Créer une campagne</Link>}
             />
           )}
         </div>

@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { enrollContacts, startCampaign } from "@/lib/outreach/outreach";
 
-/** Crée une nouvelle séquence d'outreach (status draft) puis ouvre son détail. */
+/** Crée une nouvelle campagne d'outreach (status draft) puis ouvre son détail. */
 export async function createCampaignAction(formData: FormData) {
   const { workspace } = await requireAuth();
 
@@ -37,7 +37,7 @@ export async function createCampaignAction(formData: FormData) {
   redirect(`/outreach/${campaign.id}`);
 }
 
-/** Ajoute une étape (email | wait | condition) à une séquence, à la fin de l'ordre. */
+/** Ajoute une étape (email | wait | condition) à la séquence d'une campagne, à la fin de l'ordre. */
 export async function addStepAction(formData: FormData) {
   const { workspace } = await requireAuth();
 
@@ -113,7 +113,7 @@ export async function pauseCampaignAction(formData: FormData) {
   revalidatePath("/outreach");
 }
 
-/** Inscrit tous les contacts d'une liste dans la séquence puis la démarre. */
+/** Inscrit tous les contacts d'une liste dans la campagne puis la démarre. */
 export async function enrollFromListAction(formData: FormData) {
   const { workspace } = await requireAuth();
   const campaignId = String(formData.get("campaignId") ?? "");
@@ -141,7 +141,7 @@ export async function enrollFromListAction(formData: FormData) {
 
   await enrollContacts(campaignId, contactIds);
 
-  // Démarre la séquence si elle a au moins une étape e-mail et n'est pas déjà lancée.
+  // Démarre la campagne si elle a au moins une étape e-mail et n'est pas déjà lancée.
   if (campaign.steps.some((s) => s.type === "email") && campaign.status !== "running") {
     await startCampaign(campaignId);
   }

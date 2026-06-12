@@ -62,22 +62,22 @@ export default async function OutreachPage() {
     <>
       <PageHeader
         title="Cold outreach"
-        description="Séquences de prospection multi-boîtes : relances automatiques, rotation, spintax et arrêt sur réponse."
+        description="Campagnes de prospection multi-boîtes : chaque campagne déroule sa séquence de relances automatiques, avec rotation, spintax et arrêt sur réponse."
         actions={<NewCampaignModal />}
       />
 
       {campaigns.length === 0 ? (
         <EmptyState
           icon={Send}
-          title="Lancez votre première séquence"
-          description="Une séquence d'outreach enchaîne un premier e-mail puis des relances espacées, réparties sur vos boîtes d'envoi. Elle s'arrête dès qu'un prospect répond."
+          title="Lancez votre première campagne"
+          description="Une campagne d'outreach déroule une séquence : un premier e-mail puis des relances espacées, réparties sur vos boîtes d'envoi. La séquence s'arrête dès qu'un prospect répond."
           action={<NewCampaignModal />}
         />
       ) : (
         <>
           {/* KPIs globaux */}
           <div className="grid grid-cols-2 gap-sp-4 lg:grid-cols-4">
-            <StatCard label="E-mails envoyés" value={num(totals.sent)} icon={Send} hint={`${running} séquence(s) en cours`} />
+            <StatCard label="E-mails envoyés" value={num(totals.sent)} icon={Send} hint={`${running} campagne(s) en cours`} />
             <StatCard
               label="Taux de réponse"
               value={ratio(totals.replied, totals.delivered)}
@@ -100,7 +100,7 @@ export default async function OutreachPage() {
             />
           </div>
 
-          {/* Liste des séquences */}
+          {/* Liste des campagnes */}
           <div className="mt-sp-6 grid gap-sp-4 md:grid-cols-2">
             {campaigns.map((c) => {
               const s = parseJson<Stats>(c.stats, {});
@@ -151,7 +151,7 @@ export default async function OutreachPage() {
                     </div>
 
                     <div className="mt-sp-4 flex items-center justify-end text-sm font-medium text-primary">
-                      Ouvrir la séquence <ChevronRight size={16} />
+                      Ouvrir la campagne <ChevronRight size={16} />
                     </div>
                   </Card>
                 </Link>

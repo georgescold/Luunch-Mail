@@ -22,7 +22,7 @@ export const NAV: NavItem[] = [
   { href: "/analytics", label: "Analytics", icon: BarChart3, description: "Rapports, engagement, exports", group: "Pilotage" },
 
   // ── Pôle 1 : prospection à froid de masse ──────────────────────────────
-  { href: "/outreach", label: "Séquences", icon: Send, description: "Campagnes multi-étapes, A/B, rotation", group: "Cold outreach" },
+  { href: "/outreach", label: "Campagnes", icon: Send, description: "Campagnes multi-étapes, A/B, rotation", group: "Cold outreach" },
   { href: "/infrastructure", label: "Infrastructure", icon: Server, description: "Domaines, boîtes d'envoi, DNS, IP", group: "Cold outreach" },
   { href: "/deliverability", label: "Délivrabilité", icon: ShieldCheck, description: "Warmup, placement, blacklists, vérif", group: "Cold outreach" },
   { href: "/inbox", label: "Master Inbox", icon: Inbox, description: "Réponses unifiées + agent IA", group: "Cold outreach" },

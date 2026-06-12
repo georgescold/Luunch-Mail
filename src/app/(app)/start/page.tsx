@@ -127,7 +127,7 @@ export default async function StartPage() {
           <div className="grid gap-sp-3 sm:grid-cols-2">
             <Link href="/outreach" className="group rounded-md border border-line bg-surface p-sp-4 transition-colors hover:border-primary hover:bg-primary-soft/30">
               <span className="flex items-center gap-sp-2 font-medium text-ink"><Send size={16} className="text-primary" /> Cold outreach</span>
-              <span className="mt-sp-1 block text-xs text-ink-faint">Créer une séquence de prospection multi-étapes.</span>
+              <span className="mt-sp-1 block text-xs text-ink-faint">Créer une campagne de prospection multi-étapes.</span>
             </Link>
             <Link href="/audiences" className="group rounded-md border border-line bg-surface p-sp-4 transition-colors hover:border-primary hover:bg-primary-soft/30">
               <span className="flex items-center gap-sp-2 font-medium text-ink"><Users size={16} className="text-primary" /> Email marketing</span>

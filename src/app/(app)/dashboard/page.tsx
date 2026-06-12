@@ -96,7 +96,7 @@ export default async function DashboardPage() {
         actions={
           <>
             <Link href="/outreach" className={buttonClasses({})}>
-              <Send size={16} /> Séquence outreach
+              <Send size={16} /> Campagne outreach
             </Link>
             <Link href="/automations" className={buttonClasses({ variant: "secondary" })}>
               <Workflow size={16} /> Flow marketing
@@ -127,10 +127,10 @@ export default async function DashboardPage() {
       {/* ── Pôle 1 : Cold outreach — se pilote au taux de réponse ── */}
       <div className="mb-sp-2 flex items-center justify-between">
         <SectionTitle className="mb-0">Cold outreach</SectionTitle>
-        <Link href="/outreach" className="text-sm font-medium text-primary hover:underline">Voir les séquences →</Link>
+        <Link href="/outreach" className="text-sm font-medium text-primary hover:underline">Voir les campagnes →</Link>
       </div>
       <div className="grid grid-cols-2 gap-sp-4 lg:grid-cols-4">
-        <StatCard label="E-mails outreach envoyés" value={num(oSent)} icon={Send} hint={`${runningSequences} séquence(s) en cours`} />
+        <StatCard label="E-mails outreach envoyés" value={num(oSent)} icon={Send} hint={`${runningSequences} campagne(s) en cours`} />
         <StatCard label="Taux de réponse" value={pct(oReplyRate)} icon={Inbox} hint="le KPI nº1 du cold email" deltaTone={oReplyRate >= 3 ? "up" : "neutral"} delta={oReplyRate >= 3 ? "≥ 3 % : bon" : undefined} />
         <StatCard label="Réponses positives" value={num(interestedCount)} icon={Sparkles} hint="prospects intéressés" deltaTone="up" />
         <StatCard label="Taux de bounce" value={pct(oBounceRate)} icon={AlertTriangle} deltaTone={oBounceRate <= 3 ? "up" : "down"} delta={oBounceRate <= 3 ? "sous 3 %" : "liste à nettoyer"} />

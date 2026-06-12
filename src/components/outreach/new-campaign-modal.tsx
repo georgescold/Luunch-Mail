@@ -8,15 +8,15 @@ import { Input, Textarea, Field } from "@/components/ui/input";
 import { Switch } from "@/components/ui/toggle";
 import { createCampaignAction } from "@/server/outreach-actions";
 
-/** Modal "Nouvelle séquence" : nom, objet + réglages d'envoi intelligent. */
+/** Modal « Nouvelle campagne » : nom, objet + réglages d'envoi intelligent. */
 export function NewCampaignModal() {
   return (
     <Modal
-      title="Nouvelle séquence d'outreach"
-      description="Une séquence enchaîne e-mails et relances automatiques jusqu'à obtenir une réponse."
+      title="Nouvelle campagne d'outreach"
+      description="Une campagne déroule une séquence : e-mails et relances automatiques jusqu'à obtenir une réponse."
       trigger={(open) => (
         <button onClick={open} className={buttonClasses({})}>
-          <Plus size={16} /> Nouvelle séquence
+          <Plus size={16} /> Nouvelle campagne
         </button>
       )}
     >
@@ -32,7 +32,7 @@ function NewCampaignForm({ onDone }: { onDone: () => void }) {
 
   return (
     <form action={createCampaignAction} onSubmit={() => setTimeout(onDone, 0)}>
-      <Field label="Nom de la séquence" htmlFor="name">
+      <Field label="Nom de la campagne" htmlFor="name">
         <Input id="name" name="name" placeholder="Prospection CTO SaaS — Q3" required autoFocus />
       </Field>
 
@@ -77,7 +77,7 @@ function NewCampaignForm({ onDone }: { onDone: () => void }) {
         <Button type="button" variant="subtle" onClick={onDone}>
           Annuler
         </Button>
-        <Button type="submit">Créer la séquence</Button>
+        <Button type="submit">Créer la campagne</Button>
       </div>
     </form>
   );
