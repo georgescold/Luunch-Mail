@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { getAuthContext } from "@/lib/auth";
-import { verifyState, connectGmailMailbox } from "@/lib/google";
+import { getAuthContext } from "@/lib/core/auth";
+import { verifyState, connectGmailMailbox } from "@/lib/integrations/google";
 
 /** Callback OAuth Google : échange le code, crée la boîte Gmail connectée. */
 export async function GET(req: Request) {

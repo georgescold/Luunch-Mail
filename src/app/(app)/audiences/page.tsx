@@ -1,6 +1,6 @@
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { num, money, pct, ratio, date, parseJson, initials } from "@/lib/fmt";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { num, money, pct, ratio, date, parseJson, initials } from "@/lib/core/fmt";
 import { PageHeader } from "@/components/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { Tabs } from "@/components/ui/tabs";
 import {
   Users, Filter, List, FileText, Mail, UserMinus, Wallet, ShieldCheck, Sparkles,
 } from "lucide-react";
-import type { Condition, SegmentDefinition } from "@/lib/segments";
+import type { Condition, SegmentDefinition } from "@/lib/audiences/segments";
 import { AddContactModal } from "@/components/audiences/add-contact-modal";
 import { ImportContactsModal } from "@/components/audiences/import-contacts-modal";
 import { CreateSegmentModal } from "@/components/audiences/create-segment-modal";

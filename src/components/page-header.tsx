@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 /** En-tête de page : titre (Fredoka), description, actions à droite. */
 export function PageHeader({

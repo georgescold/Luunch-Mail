@@ -1,9 +1,9 @@
 "use server";
 
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
 import { revalidatePath } from "next/cache";
-import { aiReplyDraft } from "@/lib/ai";
+import { aiReplyDraft } from "@/lib/integrations/ai";
 
 /** Catégories métier reconnues pour le tri de l'inbox (Unibox). */
 const CATEGORIES = new Set([

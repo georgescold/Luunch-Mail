@@ -21,6 +21,15 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma",
+      "esbuild",
+      "sharp"
+    ]
+  },
   "dependencies": {
     "@prisma/client": "^6.2.1",
     "@react-email/components": "^0.0.32",

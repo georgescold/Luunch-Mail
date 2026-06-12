@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 /** Mini histogramme CSS (zéro dépendance) pour l'analytics. */
 export function BarChart({

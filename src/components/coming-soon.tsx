@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Hourglass, ArrowLeft, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 /** Écran pleine page pour une fonctionnalité verrouillée « Bientôt disponible ». */
 export function ComingSoon({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 /** Tooltip (DESIGN.md §Tooltips) — fond #111827, texte blanc, 300ms show. */
 export function Tooltip({ content, children, className }: { content: React.ReactNode; children: React.ReactNode; className?: string }) {

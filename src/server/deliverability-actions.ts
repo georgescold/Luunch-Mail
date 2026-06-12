@@ -1,15 +1,15 @@
 "use server";
 
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
 import { revalidatePath } from "next/cache";
 import {
   checkBlacklists,
   analyzeSpamContent,
   startPlacementTest,
   verifyEmail,
-} from "@/lib/deliverability";
-import { addSuppression } from "@/lib/messaging";
+} from "@/lib/deliverability/deliverability";
+import { addSuppression } from "@/lib/email/messaging";
 
 const ROUTE = "/deliverability";
 

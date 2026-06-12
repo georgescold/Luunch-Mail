@@ -1,9 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
-import { hashPassword, verifyPassword } from "@/lib/crypto";
-import { createSession, destroySession } from "@/lib/auth";
+import { db } from "@/lib/core/db";
+import { hashPassword, verifyPassword } from "@/lib/core/crypto";
+import { createSession, destroySession } from "@/lib/core/auth";
 
 function slugify(input: string) {
   const base = input

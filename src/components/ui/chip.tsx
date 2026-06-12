@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 /** Filter chip (DESIGN.md §Chips) — sélectionnable. */
 export function Chip({

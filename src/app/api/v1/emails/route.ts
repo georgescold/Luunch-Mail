@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticateApiKey } from "@/lib/api-auth";
-import { sendEmail } from "@/lib/messaging";
-import { env } from "@/lib/env";
-import { isFeatureEnabled } from "@/lib/features";
+import { authenticateApiKey } from "@/lib/core/api-auth";
+import { sendEmail } from "@/lib/email/messaging";
+import { env } from "@/lib/core/env";
+import { isFeatureEnabled } from "@/lib/core/features";
 
 /**
  * API transactionnelle — POST /api/v1/emails

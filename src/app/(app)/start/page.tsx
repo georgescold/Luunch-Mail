@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { googleConfigured } from "@/lib/env";
-import { hasRealSmtp } from "@/lib/mailbox-creds";
-import { isGmailConnected } from "@/lib/google";
-import { hasCheapInboxes } from "@/lib/cheapinboxes";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { googleConfigured } from "@/lib/core/env";
+import { hasRealSmtp } from "@/lib/email/mailbox-creds";
+import { isGmailConnected } from "@/lib/integrations/google";
+import { hasCheapInboxes } from "@/lib/integrations/cheapinboxes";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,7 @@ import { buttonClasses } from "@/components/ui/button";
 import { AddDomainModal } from "@/components/infrastructure/add-domain-modal";
 import { AddMailboxModal } from "@/components/infrastructure/add-mailbox-modal";
 import { MailboxTester } from "@/components/onboarding/mailbox-tester";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 import {
   Check, Globe, Server, Plug, Rocket, Send, Users, ShieldCheck, CircleDot,
 } from "lucide-react";

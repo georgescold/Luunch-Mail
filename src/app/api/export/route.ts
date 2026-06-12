@@ -1,5 +1,5 @@
-import { getAuthContext } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { getAuthContext } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
 
 function toCsv(rows: (string | number)[][]) {
   return rows

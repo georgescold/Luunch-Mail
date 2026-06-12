@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 const base =
   "w-full rounded-sm border bg-surface px-sp-4 py-sp-3 text-body text-ink placeholder:text-ink-disabled transition-colors focus:outline-none disabled:bg-fill-subtle disabled:border-line disabled:cursor-not-allowed";

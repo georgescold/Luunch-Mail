@@ -1,8 +1,8 @@
 import { logoutAction } from "@/server/auth-actions";
-import { isDemoMode } from "@/lib/env";
-import { initials } from "@/lib/fmt";
+import { isDemoMode } from "@/lib/core/env";
+import { initials } from "@/lib/core/fmt";
 import { Badge } from "@/components/ui";
-import type { AuthContext } from "@/lib/auth";
+import type { AuthContext } from "@/lib/core/auth";
 import { LogOut, Globe } from "lucide-react";
 
 const REGION_LABEL: Record<string, string> = { eu: "Europe", us: "Amérique du N.", sa: "Amérique du S.", asia: "Asie" };

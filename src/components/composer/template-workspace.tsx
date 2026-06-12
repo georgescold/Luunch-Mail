@@ -4,8 +4,8 @@ import { useState } from "react";
 import { FileText, Code2, LayoutTemplate } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
-import { cn } from "@/lib/cn";
-import { parseJson } from "@/lib/fmt";
+import { cn } from "@/lib/core/cn";
+import { parseJson } from "@/lib/core/fmt";
 import { BlockEditor, type Block } from "./block-editor";
 import { CodeEditor } from "./code-editor";
 

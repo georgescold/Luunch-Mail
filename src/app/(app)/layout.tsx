@@ -1,7 +1,7 @@
-import { requireAuth } from "@/lib/auth";
+import { requireAuth } from "@/lib/core/auth";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
-import { startWorker } from "@/lib/worker";
+import { startWorker } from "@/lib/email/worker";
 
 // Démarre le worker de jobs au premier rendu côté serveur (runtime node).
 startWorker();

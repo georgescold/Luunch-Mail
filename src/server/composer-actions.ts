@@ -1,9 +1,9 @@
 "use server";
 
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
 import { revalidatePath } from "next/cache";
-import { aiGenerate, aiSubjectLines } from "@/lib/ai";
+import { aiGenerate, aiSubjectLines } from "@/lib/integrations/ai";
 
 /** Crée un nouveau template (drag / react_email / html). */
 export async function createTemplateAction(formData: FormData) {

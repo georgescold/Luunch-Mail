@@ -7,7 +7,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 import { addNodeAction, removeNodeAction } from "@/server/automations-actions";
 
 export type CanvasNode = {

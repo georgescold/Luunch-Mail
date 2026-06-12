@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { num, pct, date, initials } from "@/lib/fmt";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { num, pct, date, initials } from "@/lib/core/fmt";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button, buttonClasses } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { Table, THead, TH, TR, TD } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ComplianceToggle } from "@/components/settings/compliance-toggles";
 import { ComingSoonInline } from "@/components/coming-soon";
-import { isFeatureEnabled } from "@/lib/features";
+import { isFeatureEnabled } from "@/lib/core/features";
 import {
   Building2, Palette, CreditCard, ShieldCheck, Users, Globe, MapPin,
   Mail, UserPlus, FileCheck2, MailX, ListX, Trash2, Download, Clock, Crown,

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { recordEvent } from "@/lib/messaging";
+import { db } from "@/lib/core/db";
+import { recordEvent } from "@/lib/email/messaging";
 
 /**
  * Réception des webhooks d'un provider réel (Resend…) — POST /api/webhooks/:provider

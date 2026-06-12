@@ -1,9 +1,9 @@
 "use server";
 
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
 import { revalidatePath } from "next/cache";
-import { refreshSegmentCount, type Condition, type SegmentDefinition } from "@/lib/segments";
+import { refreshSegmentCount, type Condition, type SegmentDefinition } from "@/lib/audiences/segments";
 
 const ROUTE = "/audiences";
 

@@ -6,7 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 import { addMailboxAction } from "@/server/infrastructure-actions";
 import { CheapInboxesImport } from "./cheapinboxes-import";
 
@@ -113,7 +113,7 @@ function GmailConnect({ configured }: { configured: boolean }) {
         <li>4. Activez l'<strong>API Gmail</strong> dans la bibliothèque d'API.</li>
         <li>5. Collez l'ID et le secret dans le fichier <code className="rounded bg-fill-muted px-sp-1 font-mono text-xs">.env</code> (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET), puis relancez.</li>
       </ol>
-      <p className="text-xs text-ink-faint">Le guide complet est dans <code className="font-mono">SETUP-GOOGLE.md</code> à la racine du projet.</p>
+      <p className="text-xs text-ink-faint">Le guide complet est dans <code className="font-mono">docs/SETUP-GOOGLE.md</code>.</p>
     </div>
   );
 }

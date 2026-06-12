@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 /** Carte normée DESIGN.md : fond blanc, bordure #E5E7EB, radius 12px, padding 24px, shadow-md. */
 export function Card({ className, hover = false, ...props }: React.HTMLAttributes<HTMLDivElement> & { hover?: boolean }) {

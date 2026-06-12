@@ -1,10 +1,10 @@
 "use server";
 
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { sendEmail } from "@/lib/messaging";
+import { sendEmail } from "@/lib/email/messaging";
 
 /* ============================================================================
  * AUTOMATIONS — server actions (flows visuels + broadcasts)

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { num, ratio, parseJson } from "@/lib/fmt";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { num, ratio, parseJson } from "@/lib/core/fmt";
 import { PageHeader } from "@/components/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";

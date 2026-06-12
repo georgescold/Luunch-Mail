@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 export type TabItem = { id: string; label: string; content: React.ReactNode };
 

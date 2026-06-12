@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 /** Checkbox (DESIGN.md §Checkboxes) — 20px, radius 4px, coché orange. */
 export const Checkbox = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(

@@ -1,10 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { generateApiKey, randomToken } from "@/lib/crypto";
-import { sendEmail } from "@/lib/messaging";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { generateApiKey, randomToken } from "@/lib/core/crypto";
+import { sendEmail } from "@/lib/email/messaging";
 
 /** Scopes disponibles pour une clé API. */
 const VALID_SCOPES = ["emails:send", "contacts:write", "webhooks:read"];

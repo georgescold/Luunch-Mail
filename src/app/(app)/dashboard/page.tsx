@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { isDemoMode } from "@/lib/env";
-import { num, pct, ratio } from "@/lib/fmt";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { isDemoMode } from "@/lib/core/env";
+import { num, pct, ratio } from "@/lib/core/fmt";
 import { PageHeader, SectionTitle } from "@/components/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Card, CardTitle } from "@/components/ui/card";

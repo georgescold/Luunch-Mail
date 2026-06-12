@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { env, isDemoMode } from "@/lib/env";
-import { num, dateTime, relativeTime, parseJson } from "@/lib/fmt";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { env, isDemoMode } from "@/lib/core/env";
+import { num, dateTime, relativeTime, parseJson } from "@/lib/core/fmt";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge, StatusBadge } from "@/components/ui/badge";
@@ -16,7 +16,7 @@ import {
   KeyRound, ScrollText, Webhook, Code2, Mail, Send, ShieldCheck, Clock,
   Layers, FlaskConical, Inbox, ArrowRight, Trash2, Power,
 } from "lucide-react";
-import { isFeatureEnabled } from "@/lib/features";
+import { isFeatureEnabled } from "@/lib/core/features";
 import { ComingSoon } from "@/components/coming-soon";
 import { CreateKeyModal } from "@/components/transactional/create-key";
 import { CreateWebhookModal } from "@/components/transactional/create-webhook";

@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 import { updateTemplateDesignAction } from "@/server/composer-actions";
 
 /** Types de blocs supportés par l'éditeur drag-and-drop. */

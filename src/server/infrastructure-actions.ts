@@ -1,10 +1,10 @@
 "use server";
 
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
 import { revalidatePath } from "next/cache";
-import { createDomainWithDns, verifyDomainRecords } from "@/lib/dns";
-import { serializeMailboxCreds, readMailboxCreds } from "@/lib/mailbox-creds";
+import { createDomainWithDns, verifyDomainRecords } from "@/lib/deliverability/dns";
+import { serializeMailboxCreds, readMailboxCreds } from "@/lib/email/mailbox-creds";
 
 const ROUTE = "/infrastructure";
 
@@ -145,7 +145,7 @@ export async function sendTestEmailAction(
   const mb = await db.mailbox.findFirst({ where: { id: mailboxId, workspaceId: workspace.id } });
   if (!mb) return { error: "Boîte introuvable." };
 
-  const { sendEmail } = await import("@/lib/messaging");
+  const { sendEmail } = await import("@/lib/email/messaging");
   try {
     await sendEmail({
       workspaceId: workspace.id,
@@ -237,7 +237,7 @@ export async function importCheapInboxesAction(
   const { workspace } = await requireAuth();
   let apiKey = String(formData.get("apiKey") ?? "").trim();
 
-  const { validateKey, importMailboxes, storeKey, getStoredKey } = await import("@/lib/cheapinboxes");
+  const { validateKey, importMailboxes, storeKey, getStoredKey } = await import("@/lib/integrations/cheapinboxes");
 
   // Clé vide → réutilise la clé déjà mémorisée (re-synchronisation).
   if (!apiKey) {

@@ -1,7 +1,7 @@
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { isDemoMode, googleConfigured } from "@/lib/env";
-import { num, pct } from "@/lib/fmt";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { isDemoMode, googleConfigured } from "@/lib/core/env";
+import { num, pct } from "@/lib/core/fmt";
 import { PageHeader } from "@/components/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Card } from "@/components/ui/card";
@@ -20,8 +20,8 @@ import { AddIpPoolModal } from "@/components/infrastructure/add-ip-pool-modal";
 import { IpAutoWarmupSwitch } from "@/components/infrastructure/ip-autowarmup-switch";
 import { regionLabel, providerLabel } from "@/components/infrastructure/region-label";
 import { toggleMailboxAction, toggleWarmupAction } from "@/server/infrastructure-actions";
-import { cn } from "@/lib/cn";
-import { hasCheapInboxes } from "@/lib/cheapinboxes";
+import { cn } from "@/lib/core/cn";
+import { hasCheapInboxes } from "@/lib/integrations/cheapinboxes";
 
 function repTone(score: number): "success" | "warning" | "error" {
   return score >= 80 ? "success" : score >= 60 ? "warning" : "error";
@@ -32,7 +32,7 @@ const GOOGLE_FEEDBACK: Record<string, { tone: "success" | "error" | "warning"; m
   denied: { tone: "warning", msg: "Connexion Google annulée." },
   error: { tone: "error", msg: "Échec de la connexion Google. Réessayez." },
   bad_state: { tone: "error", msg: "Session expirée pendant la connexion Google. Réessayez." },
-  not_configured: { tone: "warning", msg: "L'OAuth Google n'est pas configuré (voir SETUP-GOOGLE.md)." },
+  not_configured: { tone: "warning", msg: "L'OAuth Google n'est pas configuré (voir docs/SETUP-GOOGLE.md)." },
 };
 
 export default async function InfrastructurePage({

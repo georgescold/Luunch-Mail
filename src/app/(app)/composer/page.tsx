@@ -1,7 +1,7 @@
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { hasAiKey } from "@/lib/env";
-import { date } from "@/lib/fmt";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { hasAiKey } from "@/lib/core/env";
+import { date } from "@/lib/core/fmt";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

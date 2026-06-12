@@ -1,7 +1,7 @@
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { isDemoMode } from "@/lib/env";
-import { num, pct, date, dateTime, parseJson } from "@/lib/fmt";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { isDemoMode } from "@/lib/core/env";
+import { num, pct, date, dateTime, parseJson } from "@/lib/core/fmt";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";

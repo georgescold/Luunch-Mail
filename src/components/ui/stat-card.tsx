@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 import type { LucideIcon } from "lucide-react";
 
 /** Stat Card (métrique centrée) — variante de carte DESIGN.md. */

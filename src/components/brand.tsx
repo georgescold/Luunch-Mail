@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 import { Send } from "lucide-react";
 
 /** Logo Luunch Mail (icône + wordmark Fredoka). */

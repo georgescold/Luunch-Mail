@@ -1,7 +1,7 @@
 "use server";
 
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
 
 /**
  * Construit un aperçu agrégé des performances (mêmes chiffres que la page Analytics).

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 /** Modal/dialog (shadow-lg, radius 12px). Le trigger ouvre, ferme sur backdrop/Échap. */
 export function Modal({

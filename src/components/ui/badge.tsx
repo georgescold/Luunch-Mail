@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 export type BadgeTone = "neutral" | "primary" | "success" | "warning" | "error" | "info" | "purple";
 

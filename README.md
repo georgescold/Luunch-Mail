@@ -31,31 +31,69 @@ L'app démarre par défaut en **MODE DÉMO** : aucun e-mail réel n'est envoyé,
 |---|---|---|
 | **Framework** | Next.js 15 (App Router) + React 19 + TypeScript | Frontend + API dans un seul déploiement ; écosystème natif de **React Email** (Resend) ; Server Components. |
 | **Base de données** | **Prisma + SQLite** (dev) | Démarre sans Docker ni serveur. Schéma **portable Postgres** pour la prod (voir ci-dessous). |
-| **UI** | Tailwind CSS v3 + design system maison | Application **stricte de `DESIGN.md`** (tokens couleurs/typo/espacements, composants normés). |
-| **Jobs async** | File adossée à la DB + worker in-process (`src/lib/worker.ts`) | Zéro infra en dev. Swappable BullMQ/Redis en prod. |
+| **UI** | Tailwind CSS v3 + design system maison | Application **stricte de `docs/DESIGN.md`** (tokens couleurs/typo/espacements, composants normés). |
+| **Jobs async** | File adossée à la DB + worker in-process (`src/lib/email/worker.ts`) | Zéro infra en dev. Swappable BullMQ/Redis en prod. |
 | **Envoi** | Abstraction *provider* : `Resend` / `SMTP` / `Demo` | Interchangeable, mode démo sans clé (brief §7/§10). |
 | **Auth** | Sessions + cookies httpOnly, mot de passe **scrypt** natif | Multi-tenant (Organisation → Workspace → User). |
 | **IA** | Claude (préféré) ou OpenAI, fallback démo | Composer, agent de réponse, génération d'objets. |
 
 ---
 
-## 🗂️ Architecture par domaines (`src/lib/` & `src/app/(app)/`)
+## 🗂️ Architecture des fichiers
+
+```
+.
+├── docs/                        # Toute la documentation (hors README)
+│   ├── DESIGN.md                #   design system (tokens, composants, do's & don'ts)
+│   ├── SETUP-GOOGLE.md          #   guide OAuth Google pas-à-pas
+│   ├── PROMPT-BUILD.md          #   brief de construction d'origine (archive)
+│   ├── integrations/
+│   │   └── cheapinboxes-openapi.json   # spec OpenAPI de l'API Cheap Inboxes
+│   └── research/                #   fiches d'analyse concurrentielle (spec fonctionnelle)
+│       ├── outreach/            #     Smartlead, Instantly, fondamentaux cold email
+│       └── marketing/           #     Klaviyo, ActiveCampaign, Resend, fondamentaux
+├── prisma/                      # Schéma DB, seed démo, base SQLite (dev)
+├── src/
+│   ├── app/                     # Next.js App Router
+│   │   ├── (app)/               #   écrans de l'application (1 dossier = 1 page)
+│   │   ├── (auth)/              #   login / register
+│   │   ├── api/                 #   routes REST (API v1, webhooks, OAuth, inbound)
+│   │   └── u/[token]/           #   désinscription 1-clic
+│   ├── components/              # Composants React
+│   │   ├── ui/                  #   primitives du design system (Button, Card, Modal…)
+│   │   ├── layout/              #   sidebar, topbar
+│   │   └── <domaine>/           #   composants par écran (audiences/, composer/, inbox/…)
+│   ├── lib/                     # Logique métier, organisée par domaine
+│   │   ├── core/                #   socle : env, db (Prisma), crypto, auth, sessions API,
+│   │   │                        #   feature flags, navigation, helpers (cn, fmt)
+│   │   ├── email/               #   pipeline e-mail : envoi (messaging, providers/, queue,
+│   │   │                        #   worker), réception (imap, inbox-ingest), spintax,
+│   │   │                        #   identifiants de boîtes, webhooks sortants
+│   │   ├── deliverability/      #   DNS (SPF/DKIM/DMARC), blacklists DNSBL, warmup
+│   │   ├── outreach/            #   séquences cold email (enrôlement, étapes, stats)
+│   │   ├── audiences/           #   segments dynamiques, conditions
+│   │   └── integrations/        #   services externes : Cheap Inboxes, Google OAuth, IA
+│   └── server/                  # Server Actions Next.js (1 fichier par écran)
+└── start.bat                    # Lancement 1-clic sous Windows (build + serveur prod)
+```
+
+### Domaines fonctionnels
 
 | Domaine | Code | Écran | Fiches de référence |
 |---|---|---|---|
-| **iam** | `auth.ts`, `crypto.ts` | (auth) + topbar | — |
-| **infrastructure** | `dns.ts` | `/infrastructure` | outreach/01 §2.1·2.4, outreach/02 §2.6, marketing/04 §8 |
-| **deliverability** | `deliverability.ts`, `warmup.ts` | `/deliverability` | outreach/01 §2.2·2.5, outreach/02 §2.4·2.5 |
-| **audiences** | `segments.ts` | `/audiences` | marketing/01 §2·7, marketing/02 §6 |
-| **composer** | `spintax.ts`, `ai.ts` | `/composer` | marketing/04 §2·3, marketing/01 §3.3 |
-| **outreach** | `outreach.ts` | `/outreach` | outreach/00 §5, outreach/01 §2.13, outreach/02 §1 |
-| **automation** | `outreach.ts`, `messaging.ts` | `/automations` | marketing/00 §5, marketing/01 §3, marketing/02 §2 |
-| **transactional** | `messaging.ts`, `api-auth.ts` | `/transactional` + `/api/v1/emails` | marketing/04 §1·7, outreach/01 §2.10 |
-| **inbox** | `messaging.ts`, `ai.ts` | `/inbox` | outreach/01 §2.6, outreach/00 §7 |
+| **iam** | `core/auth.ts`, `core/crypto.ts` | (auth) + topbar | — |
+| **infrastructure** | `deliverability/dns.ts`, `integrations/cheapinboxes.ts` | `/infrastructure` | outreach/01 §2.1·2.4, outreach/02 §2.6, marketing/04 §8 |
+| **deliverability** | `deliverability/deliverability.ts`, `deliverability/warmup.ts` | `/deliverability` | outreach/01 §2.2·2.5, outreach/02 §2.4·2.5 |
+| **audiences** | `audiences/segments.ts` | `/audiences` | marketing/01 §2·7, marketing/02 §6 |
+| **composer** | `email/spintax.ts`, `integrations/ai.ts` | `/composer` | marketing/04 §2·3, marketing/01 §3.3 |
+| **outreach** | `outreach/outreach.ts` | `/outreach` | outreach/00 §5, outreach/01 §2.13, outreach/02 §1 |
+| **automation** | `outreach/outreach.ts`, `email/messaging.ts` | `/automations` | marketing/00 §5, marketing/01 §3, marketing/02 §2 |
+| **transactional** | `email/messaging.ts`, `core/api-auth.ts` | `/transactional` + `/api/v1/emails` | marketing/04 §1·7, outreach/01 §2.10 |
+| **inbox** | `email/messaging.ts`, `integrations/ai.ts` | `/inbox` | outreach/01 §2.6, outreach/00 §7 |
 | **analytics** | requêtes agrégées | `/analytics` | marketing/01 §6, marketing/04 §3 |
 | **billing** | `UsageCounter` | `/settings` | — |
 
-Le **moteur d'envoi** est découplé derrière l'interface `EmailProvider` (`src/lib/providers/`).
+Le **moteur d'envoi** est découplé derrière l'interface `EmailProvider` (`src/lib/email/providers/`).
 
 ---
 
@@ -66,8 +104,8 @@ Tout est piloté par `.env` (voir `.env.example`). Sans clé → mode démo.
 - **Resend** (transactionnel + broadcasts) : `EMAIL_PROVIDER=resend`, `RESEND_API_KEY=…`, `DEFAULT_FROM_EMAIL=no-reply@votredomaine.com`.
 - **SMTP générique** : `EMAIL_PROVIDER=smtp` + `SMTP_HOST/PORT/USER/PASSWORD/SECURE`.
 - **Cold outreach** : connexion des boîtes Gmail/Outlook (OAuth — `GOOGLE_*`, `MICROSOFT_*`) ou SMTP/IMAP. L'envoi part des **boîtes réelles** connectées ; les réponses alimentent l'inbox via IMAP/API (`/api/inbound`).
-- **DNS automatisé** : `CLOUDFLARE_API_TOKEN` pour poser/vérifier SPF/DKIM/DMARC/MX/CNAME. Sinon, les enregistrements sont **générés à copier** + **vérifiés** par lookup DNS réel (`src/lib/dns.ts`).
-- **Délivrabilité** : lookups **DNSBL réels** (Spamhaus & co, `src/lib/deliverability.ts`), analyse spam (heuristique type SpamAssassin), tests de placement.
+- **DNS automatisé** : `CLOUDFLARE_API_TOKEN` pour poser/vérifier SPF/DKIM/DMARC/MX/CNAME. Sinon, les enregistrements sont **générés à copier** + **vérifiés** par lookup DNS réel (`src/lib/deliverability/dns.ts`).
+- **Délivrabilité** : lookups **DNSBL réels** (Spamhaus & co, `src/lib/deliverability/deliverability.ts`), analyse spam (heuristique type SpamAssassin), tests de placement.
 - **IA** : `ANTHROPIC_API_KEY` (modèle `ANTHROPIC_MODEL`, défaut `claude-opus-4-8`) ou `OPENAI_API_KEY`.
 
 ---
@@ -131,7 +169,7 @@ pnpm test         # tests unitaires (Vitest)
 ## 🚀 Passage en production
 
 1. **Postgres** : dans `prisma/schema.prisma`, `provider = "postgresql"` + `DATABASE_URL` Postgres, puis `prisma migrate deploy`. (Les champs JSON sont stockés en `String` pour rester compatibles ; passez-les en `Json` natif sous Postgres si souhaité.)
-2. **File de jobs** : remplacer le worker in-process par **BullMQ + Redis** (process worker dédié). L'interface `enqueue()` (`src/lib/queue.ts`) est déjà l'abstraction à brancher.
+2. **File de jobs** : remplacer le worker in-process par **BullMQ + Redis** (process worker dédié). L'interface `enqueue()` (`src/lib/email/queue.ts`) est déjà l'abstraction à brancher.
 3. **Secrets** : `APP_SECRET` long et aléatoire ; chiffrer les tokens OAuth des boîtes.
 4. **Sécurité** : webhooks signés ✅, permissions par clé API ✅, ajouter rate limiting + WAF/DDoS au déploiement.
 
@@ -145,4 +183,4 @@ pnpm test         # tests unitaires (Vitest)
 
 ## 📚 Documentation des modules
 
-Chaque module implémente l'union des meilleures capacités des outils analysés. La spécification fonctionnelle de référence reste les fiches de `./outreach/` et `./marketing/` (citées dans le tableau d'architecture ci-dessus et dans le code).
+Chaque module implémente l'union des meilleures capacités des outils analysés. La spécification fonctionnelle de référence reste les fiches de `docs/research/outreach/` et `docs/research/marketing/` (citées dans le tableau d'architecture ci-dessus et dans le code).

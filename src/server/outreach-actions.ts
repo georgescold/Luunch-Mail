@@ -1,10 +1,10 @@
 "use server";
 
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { enrollContacts, startCampaign } from "@/lib/outreach";
+import { enrollContacts, startCampaign } from "@/lib/outreach/outreach";
 
 /** Crée une nouvelle séquence d'outreach (status draft) puis ouvre son détail. */
 export async function createCampaignAction(formData: FormData) {

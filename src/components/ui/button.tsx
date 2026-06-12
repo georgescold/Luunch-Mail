@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive" | "subtle";
 export type ButtonSize = "sm" | "md" | "lg";

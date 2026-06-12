@@ -4,9 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { NAV, NAV_GROUPS } from "@/lib/nav";
+import { NAV, NAV_GROUPS } from "@/lib/core/nav";
 import { Logo } from "@/components/brand";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();

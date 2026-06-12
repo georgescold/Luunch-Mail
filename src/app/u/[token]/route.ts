@@ -1,7 +1,7 @@
-import { db } from "@/lib/db";
-import { env } from "@/lib/env";
-import { signPayload, safeEqual } from "@/lib/crypto";
-import { addSuppression } from "@/lib/messaging";
+import { db } from "@/lib/core/db";
+import { env } from "@/lib/core/env";
+import { signPayload, safeEqual } from "@/lib/core/crypto";
+import { addSuppression } from "@/lib/email/messaging";
 
 /** Décode et vérifie le jeton de désinscription signé. */
 function decode(token: string): { workspaceId: string; email: string } | null {

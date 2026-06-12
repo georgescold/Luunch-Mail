@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db } from "@/lib/core/db";
 
 /**
  * Réception d'e-mails entrants (inbound parsing) — POST /api/inbound

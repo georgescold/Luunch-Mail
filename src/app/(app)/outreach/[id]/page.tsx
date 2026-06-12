@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireAuth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { num, ratio, dateTime, parseJson, initials } from "@/lib/fmt";
+import { requireAuth } from "@/lib/core/auth";
+import { db } from "@/lib/core/db";
+import { num, ratio, dateTime, parseJson, initials } from "@/lib/core/fmt";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";

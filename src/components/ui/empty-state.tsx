@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 import type { LucideIcon } from "lucide-react";
 
 /** État vide encourageant (DESIGN.md : surface toujours la prochaine action). */

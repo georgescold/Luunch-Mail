@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 /** Tableau / liste normé (DESIGN.md §Lists) — 12px/16px padding, divider #F3F4F6, hover #F9FAFB. */
 export function Table({ className, ...props }: React.TableHTMLAttributes<HTMLTableElement>) {

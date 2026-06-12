@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/core/cn";
 
 /** Barre de progression (progression visible partout — DESIGN.md Do's #1). */
 export function Progress({

@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Design system Gigamail — application stricte de ./DESIGN.md
+ * Design system Gigamail — application stricte de ./docs/DESIGN.md
  * (couleurs, typo Fredoka/Poppins/Roboto Mono, base 8px, radius, ombres).
  */
 const config: Config = {
