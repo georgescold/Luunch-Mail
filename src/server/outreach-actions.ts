@@ -16,6 +16,8 @@ export async function createCampaignAction(formData: FormData) {
   const mailboxRotation = formData.get("mailboxRotation") === "on";
   const espMatching = formData.get("espMatching") === "on";
   const abTesting = formData.get("abTesting") === "on";
+  const trackOpens = formData.get("trackOpens") === "on";
+  const trackClicks = formData.get("trackClicks") === "on";
 
   if (!name) return;
 
@@ -29,6 +31,8 @@ export async function createCampaignAction(formData: FormData) {
       mailboxRotation,
       espMatching,
       abTesting,
+      trackOpens,
+      trackClicks,
       stats: "{}",
     },
   });

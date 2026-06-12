@@ -17,14 +17,16 @@ import {
 } from "@/server/outreach-actions";
 import {
   ArrowLeft, Mail, Clock, GitBranch, Play, Pause, Users, Shuffle,
-  GitCompareArrows, FlaskConical, Reply, Info, Sparkles,
+  GitCompareArrows, FlaskConical, Reply, Info, Sparkles, Eye, MousePointerClick,
 } from "lucide-react";
 
 type Stats = {
   sent?: number;
   delivered?: number;
-  opened?: number;
-  clicked?: number;
+  opened?: number; // ouvertures uniques (1 par message)
+  opensTotal?: number; // toutes les ouvertures, réouvertures comprises
+  clicked?: number; // clics uniques
+  clicksTotal?: number;
   replied?: number;
   bounced?: number;
 };
@@ -135,13 +137,30 @@ export default async function OutreachDetailPage({
         <FeatureChip on={campaign.mailboxRotation} icon={Shuffle} label="Rotation des boîtes" />
         <FeatureChip on={campaign.espMatching} icon={GitCompareArrows} label="ESP matching" />
         <FeatureChip on={campaign.abTesting} icon={FlaskConical} label="A/B testing" />
+        <FeatureChip on={campaign.trackOpens} icon={Eye} label="Tracking ouvertures" />
+        <FeatureChip on={campaign.trackClicks} icon={MousePointerClick} label="Tracking clics" />
       </div>
 
       {/* KPIs de la campagne */}
-      <div className="grid grid-cols-2 gap-sp-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-sp-4 lg:grid-cols-5">
         <StatCard label="Envoyés" value={num(stats.sent)} icon={Mail} hint={`${enrolledActive} inscrit(s) actif(s)`} />
         <StatCard label="Délivrés" value={ratio(stats.delivered ?? 0, stats.sent ?? 0)} />
-        <StatCard label="Ouverts" value={ratio(stats.opened ?? 0, stats.delivered ?? 0)} />
+        <StatCard
+          label="Ouverts (uniques)"
+          value={ratio(stats.opened ?? 0, stats.delivered ?? 0)}
+          icon={Eye}
+          hint={
+            campaign.trackOpens
+              ? `${num(stats.opensTotal ?? 0)} ouverture(s) au total, dont ${num(Math.max(0, (stats.opensTotal ?? 0) - (stats.opened ?? 0)))} réouverture(s)`
+              : "tracking désactivé"
+          }
+        />
+        <StatCard
+          label="Clics (uniques)"
+          value={ratio(stats.clicked ?? 0, stats.delivered ?? 0)}
+          icon={MousePointerClick}
+          hint={campaign.trackClicks ? `${num(stats.clicksTotal ?? 0)} clic(s) au total` : "tracking désactivé"}
+        />
         <StatCard label="Réponses" value={num(repliedCount)} icon={Reply} hint={`${ratio(repliedCount, campaign.enrollments.length)} des inscrits`} />
       </div>
 

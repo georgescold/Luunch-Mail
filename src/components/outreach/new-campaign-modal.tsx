@@ -29,6 +29,8 @@ function NewCampaignForm({ onDone }: { onDone: () => void }) {
   const [rotation, setRotation] = useState(true);
   const [esp, setEsp] = useState(false);
   const [ab, setAb] = useState(false);
+  const [opens, setOpens] = useState(true);
+  const [clicks, setClicks] = useState(true);
 
   return (
     <form action={createCampaignAction} onSubmit={() => setTimeout(onDone, 0)}>
@@ -70,6 +72,20 @@ function NewCampaignForm({ onDone }: { onDone: () => void }) {
           name="abTesting"
           checked={ab}
           onChange={setAb}
+        />
+        <SettingRow
+          label="Tracker les ouvertures"
+          hint="Pixel invisible. Compte les ouvertures uniques et les réouvertures. Désactivez pour maximiser la délivrabilité sur les cibles sensibles."
+          name="trackOpens"
+          checked={opens}
+          onChange={setOpens}
+        />
+        <SettingRow
+          label="Tracker les clics"
+          hint="Réécrit les liens vers une redirection signée. Le lien de désinscription n'est jamais réécrit."
+          name="trackClicks"
+          checked={clicks}
+          onChange={setClicks}
         />
       </div>
 

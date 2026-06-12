@@ -133,6 +133,23 @@ export async function performSend(messageId: string, opts: { replyTo?: string } 
     headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
   }
 
+  // Tracking ouvertures/clics — selon les options de la campagne (pixel +
+  // réécriture des liens). Uniquement sur les envois réels non-test.
+  let html = message.html ?? undefined;
+  if (html && !message.test && realSend && message.campaignId) {
+    const campaign = await db.campaign.findUnique({
+      where: { id: message.campaignId },
+      select: { trackOpens: true, trackClicks: true },
+    });
+    if (campaign && (campaign.trackOpens || campaign.trackClicks)) {
+      const { instrumentHtml } = await import("./tracking");
+      html = instrumentHtml(html, message.id, {
+        opens: campaign.trackOpens,
+        clicks: campaign.trackClicks,
+      });
+    }
+  }
+
   try {
     let result: { providerId: string; status: "sent" | "queued"; simulate?: boolean };
     if (message.test) {
@@ -141,7 +158,7 @@ export async function performSend(messageId: string, opts: { replyTo?: string } 
       const { sendViaGmail } = await import("@/lib/integrations/google");
       const id = await sendViaGmail(gmailMailboxId, {
         from: message.fromEmail, fromName, to: message.toEmail, subject: message.subject,
-        html: message.html ?? undefined, text: message.text ?? undefined, headers,
+        html, text: message.text ?? undefined, headers,
       });
       result = { providerId: id, status: "sent" };
     } else {
@@ -150,7 +167,7 @@ export async function performSend(messageId: string, opts: { replyTo?: string } 
         : getEmailProvider();
       result = await provider.send({
         from: message.fromEmail, fromName, to: message.toEmail, subject: message.subject,
-        html: message.html ?? undefined, text: message.text ?? undefined,
+        html, text: message.text ?? undefined,
         replyTo: opts.replyTo, headers, mailboxId: message.mailboxId ?? undefined, smtpOverride,
       });
     }
@@ -167,7 +184,7 @@ export async function performSend(messageId: string, opts: { replyTo?: string } 
       await enqueue("simulate_events", { messageId: message.id }, { runAt: new Date(Date.now() + 1500) });
     } else if (realSend) {
       // Envoi réel accepté par Google/SMTP → considéré délivré (handoff).
-      // Les ouvertures/clics réels nécessitent un pixel de tracking (à venir).
+      // Ouvertures/clics réels : pixel + liens réécrits (lib/email/tracking.ts).
       await recordEvent(message.id, "delivered");
     }
     return await db.emailMessage.findUnique({ where: { id: message.id } });
@@ -250,16 +267,19 @@ export async function simulateEvents(messageId: string) {
 }
 
 async function bumpCampaignStat(campaignId: string, type: string) {
-  const map: Record<string, string> = {
-    sent: "sent", delivered: "delivered", opened: "opened",
-    clicked: "clicked", bounced: "bounced", complained: "complained",
+  // opened/clicked = compteurs UNIQUES (1 par message, via recordEvent) ;
+  // opensTotal/clicksTotal incluent les ré-occurrences (incrémentés en plus
+  // par lib/email/tracking.ts sur les réouvertures / re-clics).
+  const map: Record<string, string[]> = {
+    sent: ["sent"], delivered: ["delivered"], opened: ["opened", "opensTotal"],
+    clicked: ["clicked", "clicksTotal"], bounced: ["bounced"], complained: ["complained"],
   };
-  const key = map[type];
-  if (!key) return;
+  const keys = map[type];
+  if (!keys) return;
   const campaign = await db.campaign.findUnique({ where: { id: campaignId } });
   if (!campaign) return;
   const stats = JSON.parse(campaign.stats || "{}");
-  stats[key] = (stats[key] ?? 0) + 1;
+  for (const key of keys) stats[key] = (stats[key] ?? 0) + 1;
   await db.campaign.update({ where: { id: campaignId }, data: { stats: JSON.stringify(stats) } });
 }
 

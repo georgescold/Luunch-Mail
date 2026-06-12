@@ -30,6 +30,10 @@ export const env = {
 
   cloudflareToken: process.env.CLOUDFLARE_API_TOKEN ?? "",
 
+  // Domaine dédié au tracking (CNAME vers l'app) — améliore la délivrabilité
+  // en isolant les liens trackés du domaine applicatif. Ex. : track.mondomaine.com
+  trackingDomain: process.env.TRACKING_DOMAIN ?? "",
+
   anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? "",
   openaiApiKey: process.env.OPENAI_API_KEY ?? "",
   anthropicModel: process.env.ANTHROPIC_MODEL ?? "claude-opus-4-8",
