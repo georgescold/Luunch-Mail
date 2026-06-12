@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/ui/badge";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ReplyPanel } from "@/components/inbox/reply-panel";
+import { CampaignFilter } from "@/components/inbox/campaign-filter";
 import { Inbox, Sparkles, MailQuestion, Bot, ChevronLeft } from "lucide-react";
 
 const CATEGORY_FILTERS: { value: string; label: string }[] = [
@@ -22,9 +23,10 @@ const CATEGORY_FILTERS: { value: string; label: string }[] = [
   { value: "neutral", label: "Neutre" },
 ];
 
-function buildHref(cat: string, thread?: string) {
+function buildHref(cat: string, thread?: string, campaign?: string) {
   const params = new URLSearchParams();
   if (cat && cat !== "all") params.set("cat", cat);
+  if (campaign) params.set("campaign", campaign);
   if (thread) params.set("thread", thread);
   const qs = params.toString();
   return qs ? `/inbox?${qs}` : "/inbox";
@@ -33,20 +35,29 @@ function buildHref(cat: string, thread?: string) {
 export default async function InboxPage({
   searchParams,
 }: {
-  searchParams: Promise<{ cat?: string; thread?: string }>;
+  searchParams: Promise<{ cat?: string; thread?: string; campaign?: string }>;
 }) {
   const { workspace } = await requireAuth();
   const wid = workspace.id;
   const sp = await searchParams;
   const activeCat = sp.cat ?? "all";
   const activeThreadId = sp.thread;
+  const activeCampaignId = sp.campaign;
 
-  // Filtre liste : threads ouverts, éventuellement filtrés par catégorie.
+  // Filtre liste : threads ouverts, filtrés par catégorie et/ou campagne.
   const listWhere = {
     workspaceId: wid,
     status: "open",
     ...(activeCat !== "all" ? { category: activeCat } : {}),
+    ...(activeCampaignId ? { campaignId: activeCampaignId } : {}),
   };
+
+  // Campagnes ayant au moins un thread (pour le filtre).
+  const campaignsWithThreads = await db.campaign.findMany({
+    where: { workspaceId: wid, threads: { some: {} } },
+    select: { id: true, name: true, type: true },
+    orderBy: { updatedAt: "desc" },
+  });
 
   const [threads, openCount, interestedCount, toHandleCount] = await Promise.all([
     db.inboxThread.findMany({
@@ -123,12 +134,17 @@ export default async function InboxPage({
         <div className="grid gap-sp-4 lg:grid-cols-[minmax(0,360px)_1fr]">
           {/* Colonne gauche : filtres + liste */}
           <div className={activeThread ? "hidden lg:block" : "block"}>
-            <div className="mb-sp-3 flex flex-wrap gap-sp-1">
-              {CATEGORY_FILTERS.map((f) => (
-                <Link key={f.value} href={buildHref(f.value, activeThreadId)}>
-                  <Chip selected={activeCat === f.value}>{f.label}</Chip>
-                </Link>
-              ))}
+            <div className="mb-sp-3 space-y-sp-3">
+              {campaignsWithThreads.length > 0 && (
+                <CampaignFilter campaigns={campaignsWithThreads} active={activeCampaignId} />
+              )}
+              <div className="flex flex-wrap gap-sp-1">
+                {CATEGORY_FILTERS.map((f) => (
+                  <Link key={f.value} href={buildHref(f.value, activeThreadId, activeCampaignId)}>
+                    <Chip selected={activeCat === f.value}>{f.label}</Chip>
+                  </Link>
+                ))}
+              </div>
             </div>
 
             <Card className="overflow-hidden p-0">
@@ -147,7 +163,7 @@ export default async function InboxPage({
                     return (
                       <li key={t.id}>
                         <Link
-                          href={buildHref(activeCat, t.id)}
+                          href={buildHref(activeCat, t.id, activeCampaignId)}
                           className={`flex flex-col gap-sp-1 px-sp-4 py-sp-3 transition-colors ${
                             isActive ? "bg-primary-soft" : "hover:bg-fill-subtle"
                           }`}
@@ -199,7 +215,7 @@ export default async function InboxPage({
                 {/* En-tête du thread */}
                 <div className="border-b border-line p-sp-4">
                   <Link
-                    href={buildHref(activeCat)}
+                    href={buildHref(activeCat, undefined, activeCampaignId)}
                     className="mb-sp-2 inline-flex items-center gap-sp-1 text-xs text-ink-faint hover:text-ink lg:hidden"
                   >
                     <ChevronLeft size={14} /> Retour à la liste

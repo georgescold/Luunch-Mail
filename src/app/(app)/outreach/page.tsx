@@ -25,13 +25,22 @@ export default async function OutreachPage() {
   const { workspace } = await requireAuth();
   const wid = workspace.id;
 
-  const campaigns = await db.campaign.findMany({
-    where: { workspaceId: wid, type: "outreach" },
-    orderBy: { updatedAt: "desc" },
-    include: {
-      _count: { select: { steps: true, enrollments: true } },
-    },
-  });
+  const [campaigns, interestedByCampaign] = await Promise.all([
+    db.campaign.findMany({
+      where: { workspaceId: wid, type: "outreach" },
+      orderBy: { updatedAt: "desc" },
+      include: {
+        _count: { select: { steps: true, enrollments: true } },
+      },
+    }),
+    db.inboxThread.groupBy({
+      by: ["campaignId"],
+      where: { workspaceId: wid, category: "interested", campaignId: { not: null } },
+      _count: { _all: true },
+    }),
+  ]);
+  const interestedMap = new Map(interestedByCampaign.map((g) => [g.campaignId, g._count._all]));
+  const totalInterested = interestedByCampaign.reduce((s, g) => s + g._count._all, 0);
 
   // Agrégats globaux à partir des stats parsées de chaque campagne.
   const totals = campaigns.reduce(
@@ -70,18 +79,24 @@ export default async function OutreachPage() {
           <div className="grid grid-cols-2 gap-sp-4 lg:grid-cols-4">
             <StatCard label="E-mails envoyés" value={num(totals.sent)} icon={Send} hint={`${running} séquence(s) en cours`} />
             <StatCard
+              label="Taux de réponse"
+              value={ratio(totals.replied, totals.delivered)}
+              icon={Reply}
+              hint="le KPI nº1 du cold email"
+            />
+            <StatCard
+              label="Réponses positives"
+              value={num(totalInterested)}
+              icon={MousePointerClick}
+              hint="prospects intéressés"
+              deltaTone="up"
+            />
+            <StatCard
               label="Taux de délivrabilité"
               value={ratio(totals.delivered, totals.sent)}
               icon={MailCheck}
               deltaTone={totals.sent && totals.delivered / totals.sent >= 0.98 ? "up" : "neutral"}
               delta={totals.sent && totals.delivered / totals.sent >= 0.98 ? "sain" : undefined}
-            />
-            <StatCard label="Taux d'ouverture" value={ratio(totals.opened, totals.delivered)} icon={MousePointerClick} />
-            <StatCard
-              label="Taux de réponse"
-              value={ratio(totals.replied, totals.delivered)}
-              icon={Reply}
-              hint="le KPI nº1 du cold email"
             />
           </div>
 
@@ -130,8 +145,8 @@ export default async function OutreachPage() {
                       <Metric label="Envoyés" value={num(sent)} />
                       <Metric label="Délivrés" value={ratio(s.delivered ?? 0, sent)} />
                       <Metric label="Ouverts" value={ratio(s.opened ?? 0, s.delivered ?? 0)} />
-                      <Metric label="Cliqués" value={ratio(s.clicked ?? 0, s.delivered ?? 0)} />
                       <Metric label="Réponses" value={ratio(s.replied ?? 0, s.delivered ?? 0)} tone="success" />
+                      <Metric label="Intéressés" value={num(interestedMap.get(c.id) ?? 0)} tone="success" />
                       <Metric label="Bounces" value={ratio(s.bounced ?? 0, sent)} tone={(s.bounced ?? 0) / (sent || 1) > 0.03 ? "error" : undefined} />
                     </div>
 

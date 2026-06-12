@@ -81,6 +81,12 @@ export default async function OutreachDetailPage({
         actions={
           <div className="flex items-center gap-sp-2">
             <StatusBadge status={campaign.status} />
+            <Link
+              href={`/inbox?campaign=${campaign.id}`}
+              className="inline-flex items-center gap-sp-1 rounded-md px-sp-3 py-sp-2 text-sm font-medium text-primary hover:bg-primary-soft"
+            >
+              <Reply size={16} /> Réponses
+            </Link>
             {campaign.status === "running" ? (
               <form action={pauseCampaignAction}>
                 <input type="hidden" name="campaignId" value={campaign.id} />

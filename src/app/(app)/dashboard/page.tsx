@@ -22,8 +22,12 @@ export default async function DashboardPage() {
 
   const [
     sent, delivered, opened, clicked, bounced, complained,
-    mailboxes, domains, contactsCount, activeCampaigns, openThreads,
+    mailboxes, domains, contactsCount, openThreads,
     suppressions, blacklisted, recentCampaigns, recentMessages,
+    // Pôle outreach
+    oSent, oDelivered, oBounced, replyThreads, interestedCount, runningSequences,
+    // Pôle marketing
+    mDelivered, mOpened, mClicked, liveFlows,
   ] = await Promise.all([
     db.emailMessage.count({ where: { workspaceId: wid, sentAt: { not: null } } }),
     db.emailEvent.count({ where: { type: "delivered", message: { workspaceId: wid } } }),
@@ -34,12 +38,23 @@ export default async function DashboardPage() {
     db.mailbox.findMany({ where: { workspaceId: wid } }),
     db.domain.findMany({ where: { workspaceId: wid } }),
     db.contact.count({ where: { workspaceId: wid } }),
-    db.campaign.count({ where: { workspaceId: wid, status: "running" } }),
     db.inboxThread.count({ where: { workspaceId: wid, status: "open" } }),
     db.suppressionEntry.count({ where: { workspaceId: wid } }),
     db.blacklistCheck.count({ where: { workspaceId: wid, status: "listed" } }),
     db.campaign.findMany({ where: { workspaceId: wid }, orderBy: { updatedAt: "desc" }, take: 5 }),
     db.emailMessage.findMany({ where: { workspaceId: wid, createdAt: { gte: new Date(Date.now() - 14 * 86400_000) } }, select: { createdAt: true }, take: 5000 }),
+
+    db.emailMessage.count({ where: { workspaceId: wid, source: "outreach", sentAt: { not: null } } }),
+    db.emailEvent.count({ where: { type: "delivered", message: { workspaceId: wid, source: "outreach" } } }),
+    db.emailEvent.count({ where: { type: "bounced", message: { workspaceId: wid, source: "outreach" } } }),
+    db.inboxThread.count({ where: { workspaceId: wid } }),
+    db.inboxThread.count({ where: { workspaceId: wid, category: "interested" } }),
+    db.campaign.count({ where: { workspaceId: wid, type: "outreach", status: "running" } }),
+
+    db.emailEvent.count({ where: { type: "delivered", message: { workspaceId: wid, source: "broadcast" } } }),
+    db.emailEvent.count({ where: { type: "opened", message: { workspaceId: wid, source: "broadcast" } } }),
+    db.emailEvent.count({ where: { type: "clicked", message: { workspaceId: wid, source: "broadcast" } } }),
+    db.flow.count({ where: { workspaceId: wid, status: "live" } }),
   ]);
 
   const avgReputation = mailboxes.length
@@ -59,7 +74,10 @@ export default async function DashboardPage() {
   }
 
   const deliveryRate = sent ? (delivered / sent) * 100 : 0;
-  const openRate = delivered ? (opened / delivered) * 100 : 0;
+  const oReplyRate = oDelivered ? (replyThreads / oDelivered) * 100 : 0;
+  const oBounceRate = oSent ? (oBounced / oSent) * 100 : 0;
+  const mOpenRate = mDelivered ? (mOpened / mDelivered) * 100 : 0;
+  const mClickRate = mDelivered ? (mClicked / mDelivered) * 100 : 0;
 
   // Alertes
   const alerts: { tone: "error" | "warning" | "info"; text: string; href: string }[] = [];
@@ -92,7 +110,7 @@ export default async function DashboardPage() {
           <div className="flex items-start gap-sp-4">
             <Sparkles className="mt-sp-1 text-primary" />
             <div>
-              <CardTitle>Bienvenue sur Luunch Mail 👋</CardTitle>
+              <CardTitle>Bienvenue sur Luunch Mail</CardTitle>
               <p className="mt-sp-2 text-sm text-ink-muted">
                 Lancez la donnée de démonstration avec <code className="rounded bg-surface px-sp-1 font-mono text-xs">pnpm db:seed</code>,
                 ou commencez par connecter un domaine et une boîte d'envoi.
@@ -106,11 +124,27 @@ export default async function DashboardPage() {
         </Card>
       )}
 
-      {/* KPIs */}
+      {/* ── Pôle 1 : Cold outreach — se pilote au taux de réponse ── */}
+      <div className="mb-sp-2 flex items-center justify-between">
+        <SectionTitle className="mb-0">Cold outreach</SectionTitle>
+        <Link href="/outreach" className="text-sm font-medium text-primary hover:underline">Voir les séquences →</Link>
+      </div>
       <div className="grid grid-cols-2 gap-sp-4 lg:grid-cols-4">
-        <StatCard label="E-mails envoyés" value={num(sent)} icon={Mail} hint="14 derniers jours et +" />
-        <StatCard label="Taux de délivrabilité" value={pct(deliveryRate)} icon={CheckCircle2} deltaTone={deliveryRate >= 98 ? "up" : "down"} delta={deliveryRate >= 98 ? "sain" : "à surveiller"} />
-        <StatCard label="Taux d'ouverture" value={pct(openRate)} icon={MousePointerClick} />
+        <StatCard label="E-mails outreach envoyés" value={num(oSent)} icon={Send} hint={`${runningSequences} séquence(s) en cours`} />
+        <StatCard label="Taux de réponse" value={pct(oReplyRate)} icon={Inbox} hint="le KPI nº1 du cold email" deltaTone={oReplyRate >= 3 ? "up" : "neutral"} delta={oReplyRate >= 3 ? "≥ 3 % : bon" : undefined} />
+        <StatCard label="Réponses positives" value={num(interestedCount)} icon={Sparkles} hint="prospects intéressés" deltaTone="up" />
+        <StatCard label="Taux de bounce" value={pct(oBounceRate)} icon={AlertTriangle} deltaTone={oBounceRate <= 3 ? "up" : "down"} delta={oBounceRate <= 3 ? "sous 3 %" : "liste à nettoyer"} />
+      </div>
+
+      {/* ── Pôle 2 : Email marketing — se pilote à l'engagement ── */}
+      <div className="mb-sp-2 mt-sp-6 flex items-center justify-between">
+        <SectionTitle className="mb-0">Email marketing</SectionTitle>
+        <Link href="/automations" className="text-sm font-medium text-primary hover:underline">Voir les automations →</Link>
+      </div>
+      <div className="grid grid-cols-2 gap-sp-4 lg:grid-cols-4">
+        <StatCard label="E-mails marketing délivrés" value={num(mDelivered)} icon={Mail} hint={`${liveFlows} flow(s) actif(s)`} />
+        <StatCard label="Taux d'ouverture" value={pct(mOpenRate)} icon={MousePointerClick} hint="broadcasts & flows" />
+        <StatCard label="Taux de clic" value={pct(mClickRate)} icon={MousePointerClick} />
         <StatCard label="Réponses ouvertes" value={num(openThreads)} icon={Inbox} hint="dans l'inbox unifiée" />
       </div>
 
