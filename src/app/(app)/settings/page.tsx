@@ -16,7 +16,7 @@ import { ComingSoonInline } from "@/components/coming-soon";
 import { isFeatureEnabled } from "@/lib/core/features";
 import {
   Building2, Palette, CreditCard, ShieldCheck, Users, Globe, MapPin,
-  Mail, UserPlus, FileCheck2, MailX, ListX, Trash2, Download, Clock, Crown,
+  Mail, UserPlus, FileCheck2, MailX, ListX, Trash2, Download, Clock, Crown, KeyRound,
 } from "lucide-react";
 import {
   updateWorkspaceAction,
@@ -25,6 +25,9 @@ import {
   requestDataExportAction,
   requestDataDeletionAction,
 } from "@/server/settings-actions";
+import { revokeApiKeyAction } from "@/server/transactional-actions";
+import { CreateKeyModal } from "@/components/transactional/create-key";
+import { parseJson } from "@/lib/core/fmt";
 
 const REGION_LABELS: Record<string, string> = {
   eu: "Europe (Francfort)",
@@ -53,7 +56,7 @@ export default async function SettingsPage() {
   const wid = workspace.id;
   const period = new Date().toISOString().slice(0, 7); // YYYY-MM
 
-  const [org, counters, memberships] = await Promise.all([
+  const [org, counters, memberships, apiKeys] = await Promise.all([
     db.organization.findUnique({ where: { id: workspace.orgId } }),
     db.usageCounter.findMany({ where: { workspaceId: wid, period } }),
     db.membership.findMany({
@@ -61,6 +64,7 @@ export default async function SettingsPage() {
       include: { user: true },
       orderBy: { createdAt: "asc" },
     }),
+    db.apiKey.findMany({ where: { workspaceId: wid }, orderBy: { createdAt: "desc" } }),
   ]);
 
   const counterByMetric = new Map(counters.map((c) => [c.metric, c]));
@@ -440,17 +444,115 @@ export default async function SettingsPage() {
     </div>
   );
 
+  // ── Onglet API (clés + endpoints de monitoring) ───────────────────────
+  const apiTab = (
+    <div className="space-y-sp-6">
+      <Card>
+        <div className="flex items-start justify-between gap-sp-3">
+          <div>
+            <CardTitle>Clés API</CardTitle>
+            <CardDescription>
+              Authentifiez vos intégrations avec <code className="font-mono text-xs">Authorization: Bearer gm_live_…</code>.
+              Le secret n&apos;est affiché qu&apos;une seule fois à la création.
+            </CardDescription>
+          </div>
+          <CreateKeyModal />
+        </div>
+        <div className="mt-sp-5">
+          {apiKeys.length === 0 ? (
+            <EmptyState
+              icon={KeyRound}
+              title="Aucune clé API"
+              description="Créez une clé avec le scope monitor:read pour superviser vos campagnes, boîtes et domaines à distance."
+              action={<CreateKeyModal />}
+            />
+          ) : (
+            <Table>
+              <THead>
+                <TR>
+                  <TH>Nom</TH>
+                  <TH>Clé</TH>
+                  <TH>Permissions</TH>
+                  <TH>Dernier usage</TH>
+                  <TH>Statut</TH>
+                  <TH className="text-right">Action</TH>
+                </TR>
+              </THead>
+              <tbody>
+                {apiKeys.map((k) => {
+                  const scopes = parseJson<string[]>(k.scopes, []);
+                  const revoked = Boolean(k.revokedAt);
+                  return (
+                    <TR key={k.id}>
+                      <TD className="font-medium">{k.name}</TD>
+                      <TD><code className="font-mono text-xs text-ink-muted">{k.prefix}…</code></TD>
+                      <TD>
+                        <div className="flex flex-wrap gap-sp-1">
+                          {scopes.map((s) => (
+                            <Badge key={s} tone={s === "monitor:read" ? "info" : "neutral"} className="font-mono">
+                              {s}
+                            </Badge>
+                          ))}
+                        </div>
+                      </TD>
+                      <TD className="text-sm text-ink-faint">{k.lastUsedAt ? date(k.lastUsedAt) : "jamais"}</TD>
+                      <TD>
+                        <Badge tone={revoked ? "neutral" : "success"}>{revoked ? "Révoquée" : "Active"}</Badge>
+                      </TD>
+                      <TD className="text-right">
+                        {!revoked && (
+                          <form action={revokeApiKeyAction}>
+                            <input type="hidden" name="id" value={k.id} />
+                            <Button type="submit" variant="subtle" size="sm">
+                              <Trash2 size={14} /> Révoquer
+                            </Button>
+                          </form>
+                        )}
+                      </TD>
+                    </TR>
+                  );
+                })}
+              </tbody>
+            </Table>
+          )}
+        </div>
+      </Card>
+
+      <Card>
+        <CardTitle>Endpoints de monitoring</CardTitle>
+        <CardDescription>Lecture seule, scope <code className="font-mono text-xs">monitor:read</code>. Réponses JSON.</CardDescription>
+        <div className="mt-sp-4 space-y-sp-2 font-mono text-sm text-ink-muted">
+          {[
+            ["GET /api/v1/overview", "KPIs outreach + marketing + santé infra"],
+            ["GET /api/v1/campaigns", "campagnes & stats (?type= ?status=)"],
+            ["GET /api/v1/campaigns/:id", "détail : séquence, inscrits, intéressés"],
+            ["GET /api/v1/mailboxes", "boîtes : quota, warmup, réputation"],
+            ["GET /api/v1/domains", "domaines & enregistrements DNS"],
+            ["GET /api/v1/inbox", "conversations (?category= ?campaign=)"],
+            ["GET /api/v1/deliverability", "bounces/plaintes vs seuils, blacklists"],
+          ].map(([ep, desc]) => (
+            <div key={ep} className="flex flex-wrap items-baseline justify-between gap-sp-2 border-t border-fill-muted pt-sp-2 first:border-t-0 first:pt-0">
+              <code className="text-ink">{ep}</code>
+              <span className="font-body text-xs text-ink-faint">{desc}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+
   return (
     <>
       <PageHeader
         title="Réglages"
-        description="Workspace, facturation, conformité et équipe."
+        description="Workspace, API, facturation, conformité et équipe."
       />
 
       <Tabs
         defaultTab="workspace"
         items={[
           { id: "workspace", label: "Workspace", content: workspaceTab },
+          { id: "api", label: "API", content: apiTab },
           {
             id: "white-label",
             label: "White-label",

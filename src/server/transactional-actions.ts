@@ -32,6 +32,7 @@ export async function createApiKeyAction(_prev: CreateKeyState, formData: FormDa
   });
 
   revalidatePath("/transactional");
+  revalidatePath("/settings");
   // Le secret complet repart vers le client pour affichage unique.
   return { ok: true, secret: full, prefix };
 }
@@ -47,6 +48,7 @@ export async function revokeApiKeyAction(formData: FormData) {
     data: { revokedAt: new Date() },
   });
   revalidatePath("/transactional");
+  revalidatePath("/settings");
 }
 
 /** Crée un endpoint webhook signé (secret whsec_…). */
@@ -68,6 +70,7 @@ export async function createWebhookAction(formData: FormData) {
     },
   });
   revalidatePath("/transactional");
+  revalidatePath("/settings");
 }
 
 /** Active/désactive un endpoint webhook. */
@@ -82,6 +85,7 @@ export async function toggleWebhookAction(formData: FormData) {
     data: { status: ep.status === "active" ? "disabled" : "active" },
   });
   revalidatePath("/transactional");
+  revalidatePath("/settings");
 }
 
 /** Supprime un endpoint webhook. */
@@ -91,6 +95,7 @@ export async function deleteWebhookAction(formData: FormData) {
   if (!id) return;
   await db.webhookEndpoint.deleteMany({ where: { id, workspaceId: workspace.id } });
   revalidatePath("/transactional");
+  revalidatePath("/settings");
 }
 
 export type TestSendState = { ok?: boolean; error?: string; messageId?: string };
@@ -125,5 +130,6 @@ export async function sendTestEmailAction(_prev: TestSendState, formData: FormDa
   });
 
   revalidatePath("/transactional");
+  revalidatePath("/settings");
   return { ok: true, messageId: message?.id };
 }

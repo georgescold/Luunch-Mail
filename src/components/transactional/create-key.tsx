@@ -96,7 +96,7 @@ function CreateKeyForm({ onClose }: { onClose: () => void }) {
               key={s.id}
               className="flex cursor-pointer items-start gap-sp-3 rounded-md border border-line bg-surface px-sp-3 py-sp-3 hover:bg-fill-subtle"
             >
-              <Checkbox name={`scope:${s.id}`} defaultChecked={s.id === "emails:send"} className="mt-px" />
+              <Checkbox name={`scope:${s.id}`} defaultChecked={s.id === "monitor:read"} className="mt-px" />
               <span className="min-w-0">
                 <span className="block font-mono text-sm text-ink">{s.label}</span>
                 <span className="block text-xs text-ink-faint">{s.hint}</span>
