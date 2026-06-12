@@ -360,6 +360,7 @@ model Campaign {
   sendTimeOpt    Boolean        @default(false)
   trackOpens     Boolean        @default(true) // pixel d'ouverture (desactivable par campagne)
   trackClicks    Boolean        @default(true) // reecriture des liens (desactivable par campagne)
+  includeUnsubscribe Boolean    @default(true) // lien de desinscription visible dans le corps
   stats          String         @default("{}") // JSON {sent, delivered, opened, clicked, replied, bounced}
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt

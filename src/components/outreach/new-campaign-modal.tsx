@@ -31,6 +31,7 @@ function NewCampaignForm({ onDone }: { onDone: () => void }) {
   const [ab, setAb] = useState(false);
   const [opens, setOpens] = useState(true);
   const [clicks, setClicks] = useState(true);
+  const [unsub, setUnsub] = useState(true);
 
   return (
     <form action={createCampaignAction} onSubmit={() => setTimeout(onDone, 0)}>
@@ -86,6 +87,13 @@ function NewCampaignForm({ onDone }: { onDone: () => void }) {
           name="trackClicks"
           checked={clicks}
           onChange={setClicks}
+        />
+        <SettingRow
+          label="Lien de désinscription"
+          hint="Ajoute un pied de page d'opt-out discret (en plus de l'entête 1-clic, toujours présent). Placez {{unsubscribe}} dans le corps pour le positionner vous-même."
+          name="includeUnsubscribe"
+          checked={unsub}
+          onChange={setUnsub}
         />
       </div>
 

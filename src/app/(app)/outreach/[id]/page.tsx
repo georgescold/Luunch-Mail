@@ -17,7 +17,7 @@ import {
 } from "@/server/outreach-actions";
 import {
   ArrowLeft, Mail, Clock, GitBranch, Play, Pause, Users, Shuffle,
-  GitCompareArrows, FlaskConical, Reply, Info, Sparkles, Eye, MousePointerClick,
+  GitCompareArrows, FlaskConical, Reply, Info, Sparkles, Eye, MousePointerClick, UserMinus,
 } from "lucide-react";
 
 type Stats = {
@@ -139,6 +139,7 @@ export default async function OutreachDetailPage({
         <FeatureChip on={campaign.abTesting} icon={FlaskConical} label="A/B testing" />
         <FeatureChip on={campaign.trackOpens} icon={Eye} label="Tracking ouvertures" />
         <FeatureChip on={campaign.trackClicks} icon={MousePointerClick} label="Tracking clics" />
+        <FeatureChip on={campaign.includeUnsubscribe} icon={UserMinus} label="Lien de désinscription" />
       </div>
 
       {/* KPIs de la campagne */}

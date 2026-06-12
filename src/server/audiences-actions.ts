@@ -35,49 +35,87 @@ export async function addContactAction(formData: FormData) {
   revalidatePath(ROUTE);
 }
 
+export type ImportContactsState = {
+  ok?: boolean;
+  error?: string;
+  imported?: number;
+  updated?: number;
+  skipped?: number;
+  headerDetected?: boolean;
+  customFields?: string[];
+};
+
 /**
- * Import de contacts depuis un collage CSV (une ligne = email,prénom,nom).
+ * Import de contacts depuis un collage CSV — mapping intelligent des colonnes
+ * (en-têtes FR/EN, accents, guillemets ; voir lib/audiences/csv-import.ts).
+ * Les colonnes inconnues deviennent des attributs personnalisés, utilisables
+ * comme variables {{ma_colonne}} dans les templates.
  * Crée/maj chaque contact en statut "subscribed", consentSource "import".
  * Conforme à l'hygiène opt-in : on n'écrase pas un statut existant (désinscrit reste désinscrit).
  */
-export async function importContactsAction(formData: FormData) {
+export async function importContactsAction(
+  _prev: ImportContactsState,
+  formData: FormData,
+): Promise<ImportContactsState> {
   const { workspace } = await requireAuth();
   const raw = String(formData.get("csv") ?? "");
   const wid = workspace.id;
 
-  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const lines = raw
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
+  const { parseContactsCsv } = await import("@/lib/audiences/csv-import");
+  const parsed = parseContactsCsv(raw);
+  if (parsed.contacts.length === 0) {
+    return { error: "Aucun contact valide trouvé — vérifiez qu'une colonne contient bien les e-mails." };
+  }
 
-  const seen = new Set<string>();
-  for (const line of lines) {
-    // séparateurs tolérés : virgule, point-virgule, tabulation
-    const cols = line.split(/[,;\t]/).map((c) => c.trim());
-    const email = (cols[0] ?? "").toLowerCase();
-    if (!emailRe.test(email) || seen.has(email)) continue;
-    seen.add(email);
-
-    const firstName = cols[1] || null;
-    const lastName = cols[2] || null;
-
-    await db.contact.upsert({
-      where: { workspaceId_email: { workspaceId: wid, email } },
-      update: { firstName: firstName ?? undefined, lastName: lastName ?? undefined },
-      create: {
-        workspaceId: wid,
-        email,
-        firstName,
-        lastName,
-        status: "subscribed",
-        consentSource: "import",
-        consentAt: new Date(),
-      },
+  let imported = 0;
+  let updated = 0;
+  for (const c of parsed.contacts) {
+    const existing = await db.contact.findUnique({
+      where: { workspaceId_email: { workspaceId: wid, email: c.email } },
+      select: { id: true, attributes: true },
     });
+
+    if (existing) {
+      // Fusion des attributs personnalisés (les nouveaux écrasent les anciens).
+      let attrs: Record<string, unknown> = {};
+      try { attrs = existing.attributes ? JSON.parse(existing.attributes) : {}; } catch { /* ignore */ }
+      await db.contact.update({
+        where: { id: existing.id },
+        data: {
+          firstName: c.firstName ?? undefined,
+          lastName: c.lastName ?? undefined,
+          company: c.company ?? undefined,
+          attributes: JSON.stringify({ ...attrs, ...c.attributes }),
+        },
+      });
+      updated++;
+    } else {
+      await db.contact.create({
+        data: {
+          workspaceId: wid,
+          email: c.email,
+          firstName: c.firstName,
+          lastName: c.lastName,
+          company: c.company,
+          attributes: Object.keys(c.attributes).length ? JSON.stringify(c.attributes) : "{}",
+          status: "subscribed",
+          consentSource: "import",
+          consentAt: new Date(),
+        },
+      });
+      imported++;
+    }
   }
 
   revalidatePath(ROUTE);
+  return {
+    ok: true,
+    imported,
+    updated,
+    skipped: parsed.skipped,
+    headerDetected: parsed.headerDetected,
+    customFields: parsed.customFields,
+  };
 }
 
 /** Crée un segment dynamique à partir du builder de conditions, puis recalcule le nb de membres. */

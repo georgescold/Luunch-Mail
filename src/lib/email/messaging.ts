@@ -133,15 +133,34 @@ export async function performSend(messageId: string, opts: { replyTo?: string } 
     headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
   }
 
-  // Tracking ouvertures/clics — selon les options de la campagne (pixel +
-  // réécriture des liens). Uniquement sur les envois réels non-test.
   let html = message.html ?? undefined;
-  if (html && !message.test && realSend && message.campaignId) {
-    const campaign = await db.campaign.findUnique({
-      where: { id: message.campaignId },
-      select: { trackOpens: true, trackClicks: true },
-    });
-    if (campaign && (campaign.trackOpens || campaign.trackClicks)) {
+  let text = message.text ?? undefined;
+  if (!message.test && message.source !== "transactional" && message.contactId) {
+    const campaign = message.campaignId
+      ? await db.campaign.findUnique({
+          where: { id: message.campaignId },
+          select: { trackOpens: true, trackClicks: true, includeUnsubscribe: true },
+        })
+      : null;
+
+    // 1. Lien de désinscription VISIBLE dans le corps (en plus de l'entête
+    //    one-click) — exigence marketing, bonne pratique outreach. Sauté si le
+    //    template place déjà son propre lien ({{unsubscribe}} → contient /u/).
+    if ((campaign?.includeUnsubscribe ?? true)) {
+      const url = unsubscribeUrl(message.workspaceId, message.toEmail);
+      if (html && !html.includes("/u/")) {
+        const footer = `<p style="margin-top:24px;font-size:12px;line-height:1.5;color:#9ca59f">&mdash;<br/>Si vous ne souhaitez plus recevoir mes messages, <a href="${url}" style="color:#9ca59f">cliquez ici pour vous d&eacute;sinscrire</a>.</p>`;
+        html = /<\/body>/i.test(html) ? html.replace(/<\/body>/i, `${footer}</body>`) : html + footer;
+      }
+      if (text && !text.includes("/u/")) {
+        text = `${text}\n\n—\nPour ne plus recevoir mes messages : ${url}`;
+      }
+    }
+
+    // 2. Tracking ouvertures/clics — selon les options de la campagne (pixel +
+    //    réécriture des liens). Uniquement sur les envois réels. Le lien de
+    //    désinscription (/u/) n'est jamais réécrit.
+    if (html && realSend && campaign && (campaign.trackOpens || campaign.trackClicks)) {
       const { instrumentHtml } = await import("./tracking");
       html = instrumentHtml(html, message.id, {
         opens: campaign.trackOpens,
@@ -158,7 +177,7 @@ export async function performSend(messageId: string, opts: { replyTo?: string } 
       const { sendViaGmail } = await import("@/lib/integrations/google");
       const id = await sendViaGmail(gmailMailboxId, {
         from: message.fromEmail, fromName, to: message.toEmail, subject: message.subject,
-        html, text: message.text ?? undefined, headers,
+        html, text, headers,
       });
       result = { providerId: id, status: "sent" };
     } else {
@@ -167,7 +186,7 @@ export async function performSend(messageId: string, opts: { replyTo?: string } 
         : getEmailProvider();
       result = await provider.send({
         from: message.fromEmail, fromName, to: message.toEmail, subject: message.subject,
-        html, text: message.text ?? undefined,
+        html, text,
         replyTo: opts.replyTo, headers, mailboxId: message.mailboxId ?? undefined, smtpOverride,
       });
     }

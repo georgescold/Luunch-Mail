@@ -1,5 +1,5 @@
 import { db } from "@/lib/core/db";
-import { sendEmail } from "@/lib/email/messaging";
+import { sendEmail, unsubscribeUrl } from "@/lib/email/messaging";
 import { renderTemplate, contactContext } from "@/lib/email/spintax";
 import { parseJson } from "@/lib/core/fmt";
 
@@ -74,7 +74,12 @@ export async function processSequences() {
 
     // step.type === "email"
     const mailbox = await pickMailbox(en.campaign.workspaceId, en.campaign.mailboxRotation);
-    const ctx = contactContext(en.contact);
+    // {{unsubscribe}} utilisable dans les templates ; sinon le pied de page
+    // de désinscription est ajouté automatiquement à l'envoi (performSend).
+    const ctx = {
+      ...contactContext(en.contact),
+      unsubscribe: unsubscribeUrl(en.campaign.workspaceId, en.contact.email),
+    };
     const subject = renderTemplate(step.subject ?? en.campaign.subject ?? "Bonjour", ctx);
     const body = renderTemplate(step.body ?? "", ctx);
 

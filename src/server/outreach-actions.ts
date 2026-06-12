@@ -18,6 +18,7 @@ export async function createCampaignAction(formData: FormData) {
   const abTesting = formData.get("abTesting") === "on";
   const trackOpens = formData.get("trackOpens") === "on";
   const trackClicks = formData.get("trackClicks") === "on";
+  const includeUnsubscribe = formData.get("includeUnsubscribe") === "on";
 
   if (!name) return;
 
@@ -33,6 +34,7 @@ export async function createCampaignAction(formData: FormData) {
       abTesting,
       trackOpens,
       trackClicks,
+      includeUnsubscribe,
       stats: "{}",
     },
   });
